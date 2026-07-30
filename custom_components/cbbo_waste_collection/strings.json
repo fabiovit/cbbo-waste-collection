@@ -1,0 +1,42 @@
+{
+  "title": "CBBO Waste Collection",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configura la raccolta differenziata CBBO",
+        "description": "Scegli il Comune e la zona indicata nell'Ecocalendario.",
+        "data": {
+          "municipality": "Comune",
+          "zone": "Zona",
+          "include_green": "Includi raccolta del verde",
+          "include_sanitary": "Includi tessili sanitari"
+        }
+      }
+    },
+    "abort": {"already_configured": "Questa zona è già configurata."}
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opzioni",
+        "data": {
+          "include_green": "Includi raccolta del verde",
+          "include_sanitary": "Includi tessili sanitari"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "today": {"name": "Rifiuti oggi"},
+      "tomorrow": {"name": "Rifiuti domani"},
+      "next_collection": {"name": "Prossimo ritiro"},
+      "days_to_next": {"name": "Giorni al prossimo ritiro"}
+    },
+    "binary_sensor": {
+      "collection_tomorrow": {"name": "Ritiro domani"},
+      "put_out_tonight": {"name": "Esporre stasera"}
+    },
+    "calendar": {"calendar": {"name": "Calendario raccolta"}}
+  }
+}

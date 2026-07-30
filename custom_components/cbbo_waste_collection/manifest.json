@@ -1,0 +1,10 @@
+{
+  "domain": "cbbo_waste_collection",
+  "name": "CBBO Waste Collection",
+  "codeowners": [],
+  "config_flow": true,
+  "documentation": "https://www.cbbo.it/mazzano",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/fabiovittori/cbbo-waste-collection/issues",
+  "version": "0.1.0"
+}
