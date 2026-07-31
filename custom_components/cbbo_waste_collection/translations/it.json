@@ -4,16 +4,16 @@
     "step": {
       "user": {
         "title": "Configura la raccolta differenziata CBBO",
-        "description": "Scegli il Comune e la zona indicata nell'Ecocalendario.",
-        "data": {
-          "municipality": "Comune",
-          "zone": "Zona",
-          "include_green": "Includi raccolta del verde",
-          "include_sanitary": "Includi tessili sanitari"
-        }
+        "description": "Scegli il Comune servito da CBBO.",
+        "data": {"municipality": "Comune"}
+      },
+      "zone": {
+        "title": "Scegli la zona",
+        "description": "Il Comune selezionato utilizza calendari diversi in base alla zona.",
+        "data": {"zone": "Zona"}
       }
     },
-    "abort": {"already_configured": "Questa zona è già configurata."}
+    "abort": {"already_configured": "Questo Comune o questa zona è già configurato."}
   },
   "options": {
     "step": {

@@ -10,7 +10,6 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt as dt_util
 
 from .entity import CBBOWasteEntity
-from .schedule import LABELS
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
@@ -25,14 +24,12 @@ class CBBOCalendar(CBBOWasteEntity, CalendarEntity):
     @property
     def event(self):
         item = self.coordinator.data["next"]
-        if not item:
-            return None
-        return self._event_from_collection(item)
+        return self._event_from_collection(item) if item else None
 
     async def async_get_events(self, hass: HomeAssistant, start_date: datetime, end_date: datetime):
         events = []
         for item in self.coordinator.data["upcoming"]:
-            start = dt_util.as_local(datetime.combine(item.day, time.min, tzinfo=dt_util.DEFAULT_TIME_ZONE))
+            start = datetime.combine(item.day, time.min, tzinfo=dt_util.DEFAULT_TIME_ZONE)
             if start_date <= start < end_date:
                 events.append(self._event_from_collection(item))
         return events
@@ -43,6 +40,6 @@ class CBBOCalendar(CBBOWasteEntity, CalendarEntity):
         return CalendarEvent(
             start=start,
             end=start + timedelta(days=1),
-            summary=" + ".join(LABELS[x] for x in item.waste_types),
+            summary=" + ".join(item.labels),
             description="Esposizione dalla sera precedente alle 22:00 ed entro le 05:00.",
         )

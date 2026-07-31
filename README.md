@@ -1,28 +1,39 @@
 # CBBO Waste Collection
 
-Custom integration Home Assistant per la raccolta differenziata di Mazzano (CBBO), con scelta Zona Nord/Sud.
+Custom integration for Home Assistant that exposes the public waste collection calendars published by CBBO.
 
-## Installazione manuale
+## Supported municipalities
 
-1. Copia `custom_components/cbbo_waste_collection` in `/config/custom_components/`.
-2. Riavvia Home Assistant.
-3. Vai in **Impostazioni → Dispositivi e servizi → Aggiungi integrazione**.
-4. Cerca **CBBO Waste Collection** e scegli la zona.
+Acquafredda, Barbariga, Calvisano, Capriano del Colle, Carpenedolo, Castenedolo, Flero, Ghedi, Isorella, Mazzano, Montichiari, Montirone, Nuvolento, Nuvolera, Poncarale, Remedello, San Zeno Naviglio and Visano.
 
-## Entità
+Mazzano supports the **North** and **South** zones.
 
-- Rifiuti oggi
-- Rifiuti domani
-- Prossimo ritiro
-- Giorni al prossimo ritiro
-- Ritiro domani
-- Esporre stasera
-- Calendario raccolta
+## Entities
 
-## Fonte
+- Waste today
+- Waste tomorrow
+- Next collection
+- Days until next collection
+- Collection tomorrow
+- Put out tonight
+- Collection calendar
 
-Ecocalendario ufficiale CBBO Mazzano 2026. I rifiuti vanno esposti dalle 22:00 della sera precedente ed entro le 05:00 del giorno di raccolta.
+## Data source and cache
 
-## Stato della versione 0.1.0
+The integration reads the public calendar on the selected municipality page every six hours. The latest valid calendar is cached locally, so Home Assistant can continue using it during a temporary CBBO outage.
 
-Prima versione dedicata a Mazzano. La logica annuale è inclusa localmente e non dipende dalla disponibilità del sito durante l'uso. Le variazioni eccezionali comunicate da CBBO richiederanno un aggiornamento del componente.
+## Installation with HACS
+
+1. Open HACS.
+2. Add `https://github.com/fabiovit/cbbo-waste-collection` as a custom repository of type **Integration**.
+3. Download the integration.
+4. Restart Home Assistant.
+5. Add **CBBO Waste Collection** from Settings → Devices & services.
+
+## Updating from v0.1.0
+
+The existing Mazzano configuration is migrated automatically. Entity IDs and automations are preserved.
+
+## Disclaimer
+
+This is an unofficial community integration and is not affiliated with CBBO. Always verify exceptional service changes against official CBBO communications.
