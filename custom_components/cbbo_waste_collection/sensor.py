@@ -42,6 +42,7 @@ class _CollectionSensor(CBBOWasteEntity, SensorEntity):
             "zone": self.coordinator.data["zone"],
             "source": self.coordinator.data["source"],
             "cache_used": self.coordinator.data["cache_used"],
+            "data_source": self.coordinator.data["data_source"],
         }
 
 
@@ -76,6 +77,7 @@ class CBBONextSensor(CBBOWasteEntity, SensorEntity):
             "zone": self.coordinator.data["zone"],
             "source": self.coordinator.data["source"],
             "cache_used": self.coordinator.data["cache_used"],
+            "data_source": self.coordinator.data["data_source"],
         }
 
 

@@ -24,6 +24,7 @@ from .const import (
     ZONE_DEFAULT,
 )
 from .schedule import Collection, GREEN, SANITARY
+from .mazzano_fallback import build as build_mazzano_fallback
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -48,6 +49,7 @@ class CBBOWasteCoordinator(DataUpdateCoordinator[dict]):
 
     async def _async_update_data(self) -> dict:
         cache_used = False
+        data_source = "online"
         try:
             collections = await self._api.async_get_collections(self.municipality, self.zone)
             self._collections = collections
@@ -57,16 +59,22 @@ class CBBOWasteCoordinator(DataUpdateCoordinator[dict]):
             if cached and cached.get("collections"):
                 self._collections = [self._deserialize(item) for item in cached["collections"]]
                 cache_used = True
+                data_source = "cache"
                 _LOGGER.warning("CBBO non raggiungibile; utilizzo la cache: %s", err)
             elif self._collections:
                 cache_used = True
+                data_source = "memory"
                 _LOGGER.warning("CBBO non raggiungibile; mantengo i dati in memoria: %s", err)
+            elif self.municipality == "mazzano" and self.zone in {"north", "south"}:
+                self._collections = build_mazzano_fallback(self.zone)
+                data_source = "bundled_mazzano_2026"
+                _LOGGER.warning("Uso il calendario Mazzano 2026 incluso: %s", err)
             else:
                 raise UpdateFailed(str(err)) from err
 
-        return self._build_data(cache_used)
+        return self._build_data(cache_used, data_source)
 
-    def _build_data(self, cache_used: bool) -> dict:
+    def _build_data(self, cache_used: bool, data_source: str) -> dict:
         today = dt_util.now().date()
         tomorrow = today + timedelta(days=1)
         include_green = self.entry.options.get(
@@ -95,6 +103,7 @@ class CBBOWasteCoordinator(DataUpdateCoordinator[dict]):
             "zone": self.zone,
             "source": self.source_url,
             "cache_used": cache_used,
+            "data_source": data_source,
         }
 
     @staticmethod
