@@ -76,6 +76,10 @@ Il sito CBBO non pubblica un'API documentata per questa integrazione. Il parser 
 
 Per un calendario errato apri una issue includendo Comune, zona, data attesa, data mostrata e diagnostica dell'integrazione. Non pubblicare dati personali.
 
+## Icona e identità visiva
+
+Da Home Assistant 2026.3 l'integrazione include direttamente icona e logo locali. L'icona del progetto utilizza il simbolo universale del riciclo ♻️ e non il logo ufficiale CBBO.
+
 ## Credits
 
 - 💡 Idea originale: Riccardo

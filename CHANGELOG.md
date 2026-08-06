@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1
+
+- Aggiunte icona e logo locali per Home Assistant 2026.3 e versioni successive.
+- Aggiunte varianti per tema chiaro, tema scuro e display ad alta densità.
+- Nessuna modifica agli entity ID o alla configurazione esistente.
+
 ## 1.0.0
 
 - Prima release stabile.
