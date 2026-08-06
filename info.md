@@ -1,10 +1,5 @@
-# CBBO Waste Collection 0.2.1
+# ♻️ CBBO Waste Collection
 
-Correzione del supporto multi-Comune e del parser del calendario CBBO.
+Calendari della raccolta differenziata CBBO in Home Assistant.
 
-- tutti i 18 Comuni selezionabili;
-- Mazzano Zona Nord/Sud;
-- parser Drupal, FullCalendar e markup HTML con date;
-- cache locale;
-- fallback Mazzano 2026 incluso;
-- attributo diagnostico `data_source`.
+Consulta il README del repository per installazione, configurazione e limitazioni.

@@ -1,0 +1,6 @@
+refresh:
+  name: Aggiorna calendari
+  description: Forza l'aggiornamento di tutte le configurazioni CBBO Waste Collection.
+clear_cache:
+  name: Svuota cache
+  description: Elimina la cache locale e forza un nuovo download dei calendari.

@@ -1,93 +1,46 @@
-"""Sensors for CBBO Waste Collection."""
-from __future__ import annotations
-
-from homeassistant.components.sensor import SensorEntity
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
-
+"""CBBO sensors."""
+from homeassistant.components.sensor import SensorDeviceClass,SensorEntity
 from .entity import CBBOWasteEntity
 from .schedule import ICONS
-
-
-def _display(item) -> str:
-    return " + ".join(item.labels) if item else "Nessun ritiro"
-
-
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
-    coordinator = entry.runtime_data
-    async_add_entities([
-        CBBOTodaySensor(coordinator),
-        CBBOTomorrowSensor(coordinator),
-        CBBONextSensor(coordinator),
-        CBBODaysToNextSensor(coordinator),
-    ])
-
-
-class _CollectionSensor(CBBOWasteEntity, SensorEntity):
-    data_key: str
-
+async def async_setup_entry(hass,entry,async_add_entities):
+    c=entry.runtime_data;async_add_entities([Today(c),Tomorrow(c),Next(c),Days(c),LastUpdate(c),Source(c)])
+def display(x):return " + ".join(x.labels) if x else "Nessun ritiro"
+class CollectionSensor(CBBOWasteEntity,SensorEntity):
+    key=""
     @property
-    def native_value(self):
-        return _display(self.coordinator.data[self.data_key])
-
+    def native_value(self):return display(self.coordinator.data[self.key])
     @property
     def extra_state_attributes(self):
-        item = self.coordinator.data[self.data_key]
-        return {
-            "waste_types": list(item.waste_types) if item else [],
-            "waste_labels": list(item.labels) if item else [],
-            "icons": [ICONS.get(x, "mdi:recycle") for x in item.waste_types] if item else [],
-            "municipality": self.coordinator.data["municipality_name"],
-            "zone": self.coordinator.data["zone"],
-            "source": self.coordinator.data["source"],
-            "cache_used": self.coordinator.data["cache_used"],
-            "data_source": self.coordinator.data["data_source"],
-        }
-
-
-class CBBOTodaySensor(_CollectionSensor):
-    _attr_translation_key = "today"
-    data_key = "today_collection"
-    def __init__(self, coordinator): super().__init__(coordinator, "today")
-
-
-class CBBOTomorrowSensor(_CollectionSensor):
-    _attr_translation_key = "tomorrow"
-    data_key = "tomorrow_collection"
-    def __init__(self, coordinator): super().__init__(coordinator, "tomorrow")
-
-
-class CBBONextSensor(CBBOWasteEntity, SensorEntity):
-    _attr_translation_key = "next_collection"
-    def __init__(self, coordinator): super().__init__(coordinator, "next_collection")
-
+        x=self.coordinator.data[self.key];return {"waste_types":list(x.waste_types) if x else [],"waste_labels":list(x.labels) if x else [],"icons":[ICONS.get(i,"mdi:recycle") for i in x.waste_types] if x else [],"municipality":self.coordinator.data["municipality_name"],"zone":self.coordinator.data["zone"],"source":self.coordinator.data["source"],"data_source":self.coordinator.data["data_source"]}
+class Today(CollectionSensor):
+    _attr_translation_key="today";key="today_collection"
+    def __init__(self,c):super().__init__(c,"today")
+class Tomorrow(CollectionSensor):
+    _attr_translation_key="tomorrow";key="tomorrow_collection"
+    def __init__(self,c):super().__init__(c,"tomorrow")
+class Next(CBBOWasteEntity,SensorEntity):
+    _attr_translation_key="next_collection"
+    def __init__(self,c):super().__init__(c,"next_collection")
     @property
-    def native_value(self):
-        return _display(self.coordinator.data["next"])
-
+    def native_value(self):return display(self.coordinator.data["next"])
     @property
     def extra_state_attributes(self):
-        item = self.coordinator.data["next"]
-        return {
-            "date": item.day.isoformat() if item else None,
-            "waste_types": list(item.waste_types) if item else [],
-            "waste_labels": list(item.labels) if item else [],
-            "municipality": self.coordinator.data["municipality_name"],
-            "zone": self.coordinator.data["zone"],
-            "source": self.coordinator.data["source"],
-            "cache_used": self.coordinator.data["cache_used"],
-            "data_source": self.coordinator.data["data_source"],
-        }
-
-
-class CBBODaysToNextSensor(CBBOWasteEntity, SensorEntity):
-    _attr_translation_key = "days_to_next"
-    _attr_native_unit_of_measurement = "d"
-    _attr_icon = "mdi:calendar-clock"
-    def __init__(self, coordinator): super().__init__(coordinator, "days_to_next")
-
+        x=self.coordinator.data["next"];return {"date":x.day.isoformat() if x else None,"waste_types":list(x.waste_types) if x else [],"waste_labels":list(x.labels) if x else [],"data_source":self.coordinator.data["data_source"]}
+class Days(CBBOWasteEntity,SensorEntity):
+    _attr_translation_key="days_to_next";_attr_native_unit_of_measurement="d";_attr_icon="mdi:calendar-clock"
+    def __init__(self,c):super().__init__(c,"days_to_next")
     @property
     def native_value(self):
-        item = self.coordinator.data["next"]
-        return (item.day - self.coordinator.data["today"]).days if item else None
+        x=self.coordinator.data["next"];return (x.day-self.coordinator.data["today"]).days if x else None
+class LastUpdate(CBBOWasteEntity,SensorEntity):
+    _attr_translation_key="last_update";_attr_device_class=SensorDeviceClass.TIMESTAMP
+    def __init__(self,c):super().__init__(c,"last_update")
+    @property
+    def native_value(self):return self.coordinator.data["last_update"]
+class Source(CBBOWasteEntity,SensorEntity):
+    _attr_translation_key="data_source";_attr_icon="mdi:database-sync"
+    def __init__(self,c):super().__init__(c,"data_source")
+    @property
+    def native_value(self):return self.coordinator.data["data_source"]
+    @property
+    def extra_state_attributes(self):return {"source_url":self.coordinator.data["source"],"cache_used":self.coordinator.data["cache_used"],"last_error":self.coordinator.data["last_error"]}

@@ -1,0 +1,70 @@
+{
+  "title": "♻️ CBBO Waste Collection",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configure CBBO waste collection",
+        "description": "Choose a municipality served by CBBO.",
+        "data": {
+          "municipality": "Municipality"
+        }
+      },
+      "zone": {
+        "title": "Choose zone",
+        "description": "The selected municipality uses different calendars by zone.",
+        "data": {
+          "zone": "Zone"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "This municipality or zone is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Options",
+        "data": {
+          "include_green": "Include green waste",
+          "include_sanitary": "Include sanitary textiles"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "today": {
+        "name": "Waste today"
+      },
+      "tomorrow": {
+        "name": "Waste tomorrow"
+      },
+      "next_collection": {
+        "name": "Next collection"
+      },
+      "days_to_next": {
+        "name": "Days to next collection"
+      },
+      "last_update": {
+        "name": "Last update"
+      },
+      "data_source": {
+        "name": "Data source"
+      }
+    },
+    "binary_sensor": {
+      "collection_tomorrow": {
+        "name": "Collection tomorrow"
+      },
+      "put_out_tonight": {
+        "name": "Put out tonight"
+      }
+    },
+    "calendar": {
+      "calendar": {
+        "name": "Collection calendar"
+      }
+    }
+  }
+}

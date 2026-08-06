@@ -1,35 +1,82 @@
-# CBBO Waste Collection
+# ♻️ CBBO Waste Collection
 
-Custom integration for Home Assistant for the waste-collection calendars published by CBBO.
+[![GitHub release](https://img.shields.io/github/v/release/fabiovit/cbbo-waste-collection)](https://github.com/fabiovit/cbbo-waste-collection/releases)
+[![HACS](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/)
+[![Validate](https://github.com/fabiovit/cbbo-waste-collection/actions/workflows/validate.yml/badge.svg)](https://github.com/fabiovit/cbbo-waste-collection/actions/workflows/validate.yml)
+[![License](https://img.shields.io/github/license/fabiovit/cbbo-waste-collection)](LICENSE)
 
-## Version 0.2.1
+Custom integration for Home Assistant that exposes the public CBBO waste collection calendar as sensors, binary sensors and a calendar entity.
 
-- configuration of all 18 municipalities shown on the CBBO portal;
-- optional North/South zone selection for Mazzano;
-- parsing of Drupal/FullCalendar JSON and date-bearing HTML calendar markup;
-- local cache of the last successful download;
-- bundled 2026 fallback for Mazzano North/South, so existing Mazzano installations keep working if the website is unavailable or changes markup;
-- sensors for today, tomorrow, next collection and days to next collection;
-- binary sensors for tomorrow's collection and evening exposure;
-- Home Assistant calendar entity.
+> **CBBO® e il relativo logo sono marchi dei rispettivi proprietari. Questa è un'integrazione indipendente per Home Assistant, non affiliata, sponsorizzata né approvata ufficialmente da CBBO.**
 
-The online calendar remains the authoritative source. For municipalities other than Mazzano, the first setup requires the CBBO page to return a recognisable online calendar. After the first successful refresh, cached data are used during temporary outages.
+## Funzioni
 
-## Installation with HACS
+- selezione del Comune tramite Config Flow;
+- gestione della Zona Nord/Zona Sud per Mazzano;
+- raccolte di oggi e domani;
+- prossimo ritiro e giorni mancanti;
+- avviso “esporre stasera”;
+- calendario Home Assistant;
+- aggiornamento automatico ogni 6 ore;
+- cache locale dell'ultimo calendario valido;
+- diagnostica scaricabile da Home Assistant;
+- servizi per aggiornare i dati e svuotare la cache;
+- traduzioni italiano e inglese.
 
-Add `https://github.com/fabiovit/cbbo-waste-collection` as a custom repository of category **Integration**, download it and restart Home Assistant.
+## Comuni configurabili
 
-Then go to **Settings → Devices & services → Add integration → CBBO Waste Collection**.
+Acquafredda, Barbariga, Calvisano, Capriano del Colle, Carpenedolo, Castenedolo, Flero, Ghedi, Isorella, Mazzano, Montichiari, Montirone, Nuvolento, Nuvolera, Poncarale, Remedello, San Zeno Naviglio e Visano.
 
-## Data source diagnostic
+## Installazione con HACS
 
-Collection sensors expose `data_source`:
+1. Apri **HACS → Integrazioni → Repository personalizzati**.
+2. Inserisci `https://github.com/fabiovit/cbbo-waste-collection` e scegli **Integration**.
+3. Scarica **CBBO Waste Collection**.
+4. Riavvia Home Assistant.
+5. Apri **Impostazioni → Dispositivi e servizi → Aggiungi integrazione** e cerca **CBBO Waste Collection**.
 
-- `online`: current CBBO page;
-- `cache`: last successful download;
-- `memory`: previous data kept in memory;
-- `bundled_mazzano_2026`: Mazzano 2026 emergency fallback.
+## Entità
 
-## Disclaimer
+L'entity ID viene generato da Home Assistant usando il nome del dispositivo. Per Mazzano Zona Sud, ad esempio:
 
-This is an independent community project and is not affiliated with CBBO. Always check exceptional changes against the official CBBO calendar.
+```text
+sensor.differenziata_mazzano_zona_sud_rifiuti_oggi
+sensor.differenziata_mazzano_zona_sud_rifiuti_domani
+sensor.differenziata_mazzano_zona_sud_prossimo_ritiro
+sensor.differenziata_mazzano_zona_sud_giorni_al_prossimo_ritiro
+sensor.differenziata_mazzano_zona_sud_ultimo_aggiornamento
+sensor.differenziata_mazzano_zona_sud_sorgente_dati
+binary_sensor.differenziata_mazzano_zona_sud_ritiro_domani
+binary_sensor.differenziata_mazzano_zona_sud_esporre_stasera
+calendar.differenziata_mazzano_zona_sud_calendario_raccolta
+```
+
+## Servizi
+
+### `cbbo_waste_collection.refresh`
+Forza l'aggiornamento di tutte le configurazioni dell'integrazione.
+
+### `cbbo_waste_collection.clear_cache`
+Elimina la cache locale e forza un nuovo download. Usalo soltanto quando devi risolvere dati obsoleti o errati.
+
+## Sorgente dati
+
+Il sensore **Sorgente dati** può mostrare:
+
+- `online`: calendario appena letto dal sito;
+- `cache`: ultimo calendario valido salvato localmente;
+- `memory`: dati mantenuti in memoria durante un errore temporaneo;
+- `bundled_mazzano_2026`: fallback locale limitato a Mazzano 2026.
+
+## Limiti
+
+Il sito CBBO non pubblica un'API documentata per questa integrazione. Il parser interpreta i dati pubblici presenti nelle pagine comunali. Modifiche sostanziali al sito possono richiedere un aggiornamento dell'integrazione. La cache riduce l'impatto delle interruzioni temporanee.
+
+## Segnalazioni
+
+Per un calendario errato apri una issue includendo Comune, zona, data attesa, data mostrata e diagnostica dell'integrazione. Non pubblicare dati personali.
+
+## Credits
+
+- 💡 Idea originale: Riccardo
+- 👨‍💻 Sviluppo e manutenzione: Fabio Vittori

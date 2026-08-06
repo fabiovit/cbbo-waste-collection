@@ -1,6 +1,8 @@
 """Constants for CBBO Waste Collection."""
 from __future__ import annotations
 
+from datetime import timedelta
+
 DOMAIN = "cbbo_waste_collection"
 PLATFORMS = ["sensor", "binary_sensor", "calendar"]
 
@@ -14,31 +16,19 @@ ZONE_NORTH = "north"
 ZONE_SOUTH = "south"
 
 MUNICIPALITIES: dict[str, str] = {
-    "acquafredda": "Acquafredda",
-    "barbariga": "Barbariga",
-    "calvisano": "Calvisano",
-    "capriano-del-colle": "Capriano del Colle",
-    "carpenedolo": "Carpenedolo",
-    "castenedolo": "Castenedolo",
-    "flero": "Flero",
-    "ghedi": "Ghedi",
-    "isorella": "Isorella",
-    "mazzano": "Mazzano",
-    "montichiari": "Montichiari",
-    "montirone": "Montirone",
-    "nuvolento": "Nuvolento",
-    "nuvolera": "Nuvolera",
-    "poncarale": "Poncarale",
-    "remedello": "Remedello",
-    "san-zeno-naviglio": "San Zeno Naviglio",
-    "visano": "Visano",
+    "acquafredda": "Acquafredda", "barbariga": "Barbariga", "calvisano": "Calvisano",
+    "capriano-del-colle": "Capriano del Colle", "carpenedolo": "Carpenedolo",
+    "castenedolo": "Castenedolo", "flero": "Flero", "ghedi": "Ghedi",
+    "isorella": "Isorella", "mazzano": "Mazzano", "montichiari": "Montichiari",
+    "montirone": "Montirone", "nuvolento": "Nuvolento", "nuvolera": "Nuvolera",
+    "poncarale": "Poncarale", "remedello": "Remedello",
+    "san-zeno-naviglio": "San Zeno Naviglio", "visano": "Visano",
 }
-
-# Mazzano publishes two alternating residual-waste zones.
 MUNICIPALITY_ZONES: dict[str, dict[str, str]] = {
     "mazzano": {ZONE_NORTH: "Zona Nord", ZONE_SOUTH: "Zona Sud"},
 }
-
 BASE_URL = "https://www.cbbo.it"
 CACHE_VERSION = 1
-DEFAULT_SCAN_INTERVAL_HOURS = 6
+UPDATE_INTERVAL = timedelta(hours=6)
+SERVICE_REFRESH = "refresh"
+SERVICE_CLEAR_CACHE = "clear_cache"

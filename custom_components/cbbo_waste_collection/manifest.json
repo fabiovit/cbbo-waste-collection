@@ -1,11 +1,13 @@
 {
   "domain": "cbbo_waste_collection",
   "name": "CBBO Waste Collection",
-  "codeowners": [],
+  "codeowners": [
+    "@fabiovit"
+  ],
   "config_flow": true,
   "documentation": "https://github.com/fabiovit/cbbo-waste-collection",
   "integration_type": "service",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/fabiovit/cbbo-waste-collection/issues",
-  "version": "0.2.1"
+  "version": "1.0.0"
 }

@@ -1,19 +1,25 @@
 {
-  "title": "CBBO Waste Collection",
+  "title": "♻️ CBBO Waste Collection",
   "config": {
     "step": {
       "user": {
         "title": "Configura la raccolta differenziata CBBO",
         "description": "Scegli il Comune servito da CBBO.",
-        "data": {"municipality": "Comune"}
+        "data": {
+          "municipality": "Comune"
+        }
       },
       "zone": {
         "title": "Scegli la zona",
         "description": "Il Comune selezionato utilizza calendari diversi in base alla zona.",
-        "data": {"zone": "Zona"}
+        "data": {
+          "zone": "Zona"
+        }
       }
     },
-    "abort": {"already_configured": "Questo Comune o questa zona è già configurato."}
+    "abort": {
+      "already_configured": "Questo Comune o questa zona è già configurato."
+    }
   },
   "options": {
     "step": {
@@ -28,15 +34,37 @@
   },
   "entity": {
     "sensor": {
-      "today": {"name": "Rifiuti oggi"},
-      "tomorrow": {"name": "Rifiuti domani"},
-      "next_collection": {"name": "Prossimo ritiro"},
-      "days_to_next": {"name": "Giorni al prossimo ritiro"}
+      "today": {
+        "name": "Rifiuti oggi"
+      },
+      "tomorrow": {
+        "name": "Rifiuti domani"
+      },
+      "next_collection": {
+        "name": "Prossimo ritiro"
+      },
+      "days_to_next": {
+        "name": "Giorni al prossimo ritiro"
+      },
+      "last_update": {
+        "name": "Ultimo aggiornamento"
+      },
+      "data_source": {
+        "name": "Sorgente dati"
+      }
     },
     "binary_sensor": {
-      "collection_tomorrow": {"name": "Ritiro domani"},
-      "put_out_tonight": {"name": "Esporre stasera"}
+      "collection_tomorrow": {
+        "name": "Ritiro domani"
+      },
+      "put_out_tonight": {
+        "name": "Esporre stasera"
+      }
     },
-    "calendar": {"calendar": {"name": "Calendario raccolta"}}
+    "calendar": {
+      "calendar": {
+        "name": "Calendario raccolta"
+      }
+    }
   }
 }
