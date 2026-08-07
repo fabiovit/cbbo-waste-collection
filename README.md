@@ -116,6 +116,10 @@ Forza l'aggiornamento di tutte le configurazioni.
 ### `cbbo_waste_collection.clear_cache`
 Elimina la cache locale e forza un nuovo tentativo di download. Non elimina il profilo locale 2026 incluso nell'integrazione.
 
+## Audit dei profili 2026
+
+Dalla versione **2.0.1** i profili locali sono accompagnati da test di regressione Comune per Comune. Il file [`AUDIT_2026.md`](AUDIT_2026.md) riporta la matrice di controllo usata per il 7 agosto 2026 e le correzioni effettuate dopo la 2.0.0.
+
 ## Note sui calendari
 
 I profili integrati rappresentano i calendari e gli schemi di raccolta 2026 pubblicati da CBBO e servono da fallback quando la pagina online non è interpretabile dal client Home Assistant. **Le variazioni eccezionali legate a festività, recuperi o comunicazioni straordinarie possono essere aggiornate da CBBO durante l'anno:** quando disponibili, i dati online hanno quindi sempre la precedenza.

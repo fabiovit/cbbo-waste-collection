@@ -10,7 +10,16 @@ for name in ("const","schedule","bundled_2026"):
         spec=importlib.util.spec_from_file_location(fq,BASE/f"{name}.py");mod=importlib.util.module_from_spec(spec);sys.modules[fq]=mod;spec.loader.exec_module(mod)
 from cbbo_waste_collection.bundled_2026 import build
 from cbbo_waste_collection.const import MUNICIPALITIES, ZONE_SOUTH
-from cbbo_waste_collection.schedule import PAPER, RESIDUAL, SANITARY
+from cbbo_waste_collection.schedule import (
+    ORGANIC, PLASTIC, PAPER, GLASS_CANS, RESIDUAL, SANITARY, GREEN
+)
+
+
+def _types(municipality, day, zone="default"):
+    for item in build(municipality, zone):
+        if item.day == day:
+            return item.waste_types
+    return ()
 
 
 def test_all_municipalities_have_2026_fallback():
@@ -22,62 +31,99 @@ def test_all_municipalities_have_2026_fallback():
         assert data == sorted(data, key=lambda item: item.day)
 
 
-def test_castenedolo_august_7_matches_live_test():
-    item = next(x for x in build("castenedolo") if x.day == date(2026, 8, 7))
-    assert RESIDUAL in item.waste_types
-    assert SANITARY in item.waste_types
+def test_august_7_2026_matrix_all_municipalities():
+    """Regression matrix checked against CBBO 2026 municipality calendars."""
+    d=date(2026,8,7)  # Friday
+    expected={
+        "acquafredda": (),
+        "barbariga": (),
+        "calvisano": (RESIDUAL,SANITARY),
+        "capriano-del-colle": (ORGANIC,),
+        "carpenedolo": (SANITARY,GLASS_CANS),
+        "castenedolo": (RESIDUAL,SANITARY),
+        "flero": (RESIDUAL,),
+        "ghedi": (GLASS_CANS,SANITARY),
+        "isorella": (GLASS_CANS,),
+        "mazzano": (PAPER,),
+        "montichiari": (PAPER,PLASTIC),
+        "montirone": (ORGANIC,),
+        "nuvolento": (PLASTIC,SANITARY,GLASS_CANS),
+        "nuvolera": (PLASTIC,SANITARY),
+        "poncarale": (ORGANIC,),
+        "remedello": (PLASTIC,),
+        "san-zeno-naviglio": (),
+        "visano": (),
+    }
+    for municipality, wanted in expected.items():
+        zone=ZONE_SOUTH if municipality=="mazzano" else "default"
+        assert _types(municipality,d,zone)==wanted, municipality
 
 
-def test_mazzano_south_august_7_paper():
-    item = next(x for x in build("mazzano", ZONE_SOUTH) if x.day == date(2026, 8, 7))
-    assert PAPER in item.waste_types
+def test_carpenedolo_week_is_exact():
+    assert _types("carpenedolo",date(2026,8,3))==(PLASTIC,SANITARY)
+    assert _types("carpenedolo",date(2026,8,4))==(ORGANIC,)
+    assert _types("carpenedolo",date(2026,8,5))==(RESIDUAL,)
+    assert _types("carpenedolo",date(2026,8,6))==(PAPER,)
+    assert _types("carpenedolo",date(2026,8,7))==(SANITARY,GLASS_CANS)
+    assert _types("carpenedolo",date(2026,8,8))==(ORGANIC,)
+
+
+def test_calvisano_week_is_exact():
+    assert _types("calvisano",date(2026,8,3))==()
+    assert _types("calvisano",date(2026,8,4))==(ORGANIC,GLASS_CANS)
+    assert _types("calvisano",date(2026,8,5))==(PLASTIC,)
+    assert _types("calvisano",date(2026,8,6))==(PAPER,)
+    assert _types("calvisano",date(2026,8,7))==(RESIDUAL,SANITARY)
+    assert _types("calvisano",date(2026,8,8))==(ORGANIC,)
+
+
+def test_flero_week_is_exact():
+    mon=_types("flero",date(2026,8,3))
+    assert mon==(ORGANIC,PLASTIC,GREEN)
+    assert _types("flero",date(2026,8,4))==()
+    assert _types("flero",date(2026,8,5))==(SANITARY,)
+    assert _types("flero",date(2026,8,6))==(ORGANIC,PAPER,GLASS_CANS)
+    assert _types("flero",date(2026,8,7))==(RESIDUAL,)
+
+
+def test_capriano_paper_is_thursday():
+    assert PAPER not in _types("capriano-del-colle",date(2026,8,5))
+    assert _types("capriano-del-colle",date(2026,8,6))==(PAPER,)
+
+
+def test_castenedolo_tuesday_has_no_sanitary():
+    tue=_types("castenedolo",date(2026,8,4))
+    assert tue==(PLASTIC,GLASS_CANS)
+    assert SANITARY not in tue
+
+
+def test_acquafredda_organic_is_tuesday_and_saturday():
+    assert _types("acquafredda",date(2026,8,4))==(ORGANIC,)
+    assert _types("acquafredda",date(2026,8,7))==()
+    assert _types("acquafredda",date(2026,8,8))==(ORGANIC,)
+
+
+def test_nuvolera_friday_cycle():
+    # Glass was collected on 3/17/31 July, so 7 Aug is plastic + sanitary only.
+    assert _types("nuvolera",date(2026,7,31))==(PLASTIC,SANITARY,GLASS_CANS)
+    assert _types("nuvolera",date(2026,8,7))==(PLASTIC,SANITARY)
+
+
+def test_nuvolento_friday_cycle():
+    # Nuvolento's glass phase is offset by one week relative to Nuvolera.
+    assert _types("nuvolento",date(2026,8,7))==(PLASTIC,SANITARY,GLASS_CANS)
 
 
 def test_barbariga_starts_june_2026():
-    data = build("barbariga")
-    assert min(x.day for x in data) >= date(2026, 6, 1)
+    data=build("barbariga")
+    assert min(x.day for x in data)>=date(2026,6,1)
 
 
-def _types(municipality, day, zone='default'):
-    return next(x.waste_types for x in build(municipality, zone) if x.day == day)
+def test_ghedi_current_pattern():
+    assert _types("ghedi",date(2026,8,3))==(ORGANIC,PLASTIC)
+    assert _types("ghedi",date(2026,8,4))==(RESIDUAL,SANITARY)
+    assert _types("ghedi",date(2026,8,7))==(GLASS_CANS,SANITARY)
 
 
-def test_flero_july_2026_pattern():
-    from cbbo_waste_collection.schedule import ORGANIC, GREEN, PLASTIC, SANITARY, GLASS_CANS
-    assert ORGANIC in _types('flero', date(2026,7,6))
-    assert GREEN in _types('flero', date(2026,7,6))
-    assert PLASTIC in _types('flero', date(2026,7,7))
-    assert SANITARY in _types('flero', date(2026,7,8))
-    assert GLASS_CANS in _types('flero', date(2026,7,10))
-
-
-def test_ghedi_july_2026_pattern():
-    from cbbo_waste_collection.schedule import ORGANIC, PLASTIC, RESIDUAL, SANITARY, GLASS_CANS
-    monday=_types('ghedi', date(2026,7,6))
-    assert ORGANIC in monday and PLASTIC in monday
-    tuesday=_types('ghedi', date(2026,7,7))
-    assert RESIDUAL in tuesday and SANITARY in tuesday
-    friday=_types('ghedi', date(2026,7,10))
-    assert GLASS_CANS in friday and SANITARY in friday
-
-
-def test_nuvolento_july_2026_pattern():
-    from cbbo_waste_collection.schedule import PAPER, PLASTIC, GLASS_CANS
-    assert PAPER in _types('nuvolento', date(2026,7,9))
-    friday=_types('nuvolento', date(2026,7,10))
-    assert PLASTIC in friday and GLASS_CANS in friday
-
-
-def test_remedello_july_2026_pattern():
-    from cbbo_waste_collection.schedule import ORGANIC, RESIDUAL, SANITARY, PAPER, PLASTIC
-    assert ORGANIC in _types('remedello', date(2026,7,6))
-    wed=_types('remedello', date(2026,7,8))
-    assert RESIDUAL in wed and SANITARY in wed
-    assert PAPER in _types('remedello', date(2026,7,3))
-    assert PLASTIC in _types('remedello', date(2026,7,10))
-
-
-def test_visano_organic_is_tuesday_and_saturday():
-    from cbbo_waste_collection.schedule import ORGANIC
-    assert ORGANIC in _types('visano', date(2026,7,7))
-    assert ORGANIC in _types('visano', date(2026,7,11))
+def test_mazzano_south_august_7_paper():
+    assert _types("mazzano",date(2026,8,7),ZONE_SOUTH)==(PAPER,)

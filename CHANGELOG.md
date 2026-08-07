@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.0.1
+
+- Correzione completa dei profili 2026 dopo audit Comune per Comune sulle fonti CBBO ufficiali.
+- Corretto Carpenedolo: venerdì solo vetro/lattine + tessili sanitari; organico spostato al sabato.
+- Corretti Acquafredda, Calvisano, Capriano del Colle, Castenedolo, Flero, Montichiari e Nuvolera.
+- Aggiunta matrice di regressione sul 7 agosto 2026 per tutti i 18 Comuni CBBO.
+- Nessuna modifica agli entity ID o alle configurazioni esistenti.
+- Credits invariati: idea originale di Riccardo Cosi.
+
 ## 2.0.0
 
 - Supporto operativo a tutti i 18 Comuni CBBO tramite profili calendario 2026 integrati.
