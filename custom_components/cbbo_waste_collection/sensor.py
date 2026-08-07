@@ -43,4 +43,4 @@ class Source(CBBOWasteEntity,SensorEntity):
     @property
     def native_value(self):return self.coordinator.data["data_source"]
     @property
-    def extra_state_attributes(self):return {"source_url":self.coordinator.data["source"],"cache_used":self.coordinator.data["cache_used"],"last_error":self.coordinator.data["last_error"]}
+    def extra_state_attributes(self):return {"source_url":self.coordinator.data["source"],"cache_used":self.coordinator.data["cache_used"],"last_error":self.coordinator.data["last_error"],"ecocalendar_pdf":self.coordinator.data.get("pdf_url")}

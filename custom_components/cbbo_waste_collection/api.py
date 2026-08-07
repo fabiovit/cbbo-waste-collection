@@ -73,6 +73,7 @@ class _Parser(HTMLParser):
 class CBBOApiClient:
     def __init__(self, session: ClientSession) -> None:
         self._session = session
+        self.last_pdf_url: str | None = None
 
     async def async_get_collections(self, municipality: str, zone: str) -> list[Collection]:
         url = f"{BASE_URL}/{municipality}"
@@ -91,6 +92,7 @@ class CBBOApiClient:
         except (ClientError, TimeoutError) as err:
             raise CBBOApiError(f"Download non riuscito: {err}") from err
 
+        self.last_pdf_url = self.discover_ecocalendar_url(body)
         events = self.parse_events(body)
         grouped: dict[date, list[tuple[str, str]]] = defaultdict(list)
 
@@ -121,6 +123,23 @@ class CBBOApiClient:
         if not result:
             raise CBBOApiError("Calendario non riconosciuto nella pagina CBBO")
         return result
+
+    @staticmethod
+    def discover_ecocalendar_url(body: str) -> str | None:
+        """Return the Ecocalendario PDF URL advertised on a municipality page."""
+        text = html.unescape(body).replace("\\/", "/")
+        matches = re.findall(r"href=[\"']([^\"']+\.pdf(?:\?[^\"']*)?)[\"']", text, re.I)
+        preferred = [item for item in matches if "ecocalend" in item.casefold()]
+        if not preferred:
+            return None
+        value = preferred[0]
+        if value.startswith("//"):
+            return "https:" + value
+        if value.startswith("/"):
+            return BASE_URL + value
+        if value.startswith("http://") or value.startswith("https://"):
+            return value
+        return BASE_URL + "/" + value.lstrip("/")
 
     @classmethod
     def parse_events(cls, body: str) -> list[tuple[date, str, str | None]]:

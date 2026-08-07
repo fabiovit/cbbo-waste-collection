@@ -82,5 +82,10 @@ Da Home Assistant 2026.3 l'integrazione include direttamente icona e logo locali
 
 ## Credits
 
-- 💡 Idea originale: Riccardo
+- 💡 Idea originale: Riccardo Cosi
 - 👨‍💻 Sviluppo e manutenzione: Fabio Vittori
+
+
+### Sorgenti dati e fallback
+
+L'integrazione tenta prima di leggere i dati pubblicati nella pagina CBBO del Comune. Quando il calendario giornaliero non è esposto nell'HTML, la diagnostica riporta anche il link all'Ecocalendario PDF ufficiale. Per Mazzano e Castenedolo 2026 è disponibile un calendario locale di sicurezza verificato sul rispettivo Ecocalendario CBBO.
