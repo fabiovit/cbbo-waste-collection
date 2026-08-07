@@ -130,6 +130,14 @@ Se rilevi una data errata, apri una issue indicando Comune, data, raccolta attes
 
 L'integrazione include direttamente icona e logo locali. L'icona del progetto utilizza il simbolo universale del riciclo ♻️ e non il logo ufficiale CBBO.
 
+## ☕ Supporta il progetto
+
+CBBO Waste Collection è gratuito e open source.
+
+Se trovi utile l'integrazione e vuoi contribuire al suo sviluppo e alla sua manutenzione, puoi offrirmi un caffè su Ko-fi:
+
+https://ko-fi.com/fabvittori
+
 ## Credits
 
 - 💡 Idea originale: Riccardo Cosi

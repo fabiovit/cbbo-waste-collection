@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.2
+
+- Corretti i calendari 2026 di Isorella, Montichiari, Montirone, Poncarale e San Zeno Naviglio.
+- Aggiunti test di regressione per le date segnalate del 7, 8 e 10 agosto 2026.
+- Aggiunto il supporto alle donazioni tramite Ko-fi e GitHub Funding.
+- Nessuna modifica agli entity ID esistenti.
+
 ## 2.0.1
 
 - Correzione completa dei profili 2026 dopo audit Comune per Comune sulle fonti CBBO ufficiali.

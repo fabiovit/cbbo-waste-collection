@@ -140,12 +140,14 @@ def _ghedi(d: date):
 
 
 def _isorella(d: date):
+    # 2026 CBBO calendar: organic Mon/Thu, residual + glass Tue,
+    # plastic Wed, paper every other Friday. 7 Aug 2026 has no collection.
     t=[]; wd=d.weekday()
     if wd==0: t.append(ORGANIC)
-    if wd==1: t.append(RESIDUAL)
+    if wd==1: t.extend((RESIDUAL,GLASS_CANS))
     if wd==2: t.append(PLASTIC)
     if wd==3: t.append(ORGANIC)
-    if wd==4: t.append(PAPER if _biweekly(d,date(2026,7,3)) else GLASS_CANS)
+    if wd==4 and _biweekly(d,date(2026,7,3)): t.append(PAPER)
     return t
 
 
@@ -168,22 +170,26 @@ def _mazzano(d: date, zone: str):
 
 
 def _montichiari(d: date):
+    # Corrected against the CBBO 2026 calendar. Friday 7 Aug is paper only.
     t=[]; wd=d.weekday()
     if wd==0: t.append(ORGANIC)
     if wd==1: t.extend((RESIDUAL,SANITARY))
     if wd==2: t.append(GLASS_CANS)
     if wd==3: t.append(ORGANIC)
-    if wd==4: t.extend((PAPER,PLASTIC))
+    if wd==4:
+        t.append(PAPER)
+        if _biweekly(d,date(2026,7,31)): t.append(PLASTIC)
     return t
 
 
 def _montirone(d: date):
+    # Corrected against the 2026 CBBO calendar; no Friday collection.
     t=[]; wd=d.weekday()
-    if wd==0: t.extend((ORGANIC,RESIDUAL,SANITARY))
-    if wd==1: t.append(GLASS_CANS)
-    if wd==2: t.append(PLASTIC)
-    if wd==3: t.append(PAPER)
-    if wd==4: t.append(ORGANIC)
+    if wd==0: t.extend((RESIDUAL,SANITARY))
+    if wd==1: t.append(ORGANIC)
+    if wd==2: t.append(GLASS_CANS)
+    if wd==3: t.append(PLASTIC)
+    if wd==5: t.extend((PAPER,ORGANIC))
     return t
 
 
@@ -228,14 +234,15 @@ def _nuvolera(d: date):
 
 
 def _poncarale(d: date):
+    # 2026 CBBO calendar: no Friday collection; Saturday paper + organic.
     t=[]; wd=d.weekday()
     if wd==0:
         t.append(RESIDUAL)
         if 3 <= d.month <= 11: t.append(GREEN)
-    if wd==1: t.extend((ORGANIC,GLASS_CANS))
+    if wd==1: t.append(ORGANIC)
     if wd==2: t.append(PLASTIC)
-    if wd==3: t.append(PAPER)
-    if wd==4: t.append(ORGANIC)
+    if wd==3: t.append(GLASS_CANS)
+    if wd==5: t.extend((PAPER,ORGANIC))
     return t
 
 
@@ -251,12 +258,11 @@ def _remedello(d: date):
 
 
 def _san_zeno(d: date):
-    # Organico and residual are collected in street containers with electronic lid;
-    # the door-to-door calendar covers the dry recyclable fractions.
+    # Organico and residual use street containers. Door-to-door dry fractions:
+    # paper + glass Monday, plastic Wednesday.
     t=[]; wd=d.weekday()
-    if wd==0: t.append(PAPER)
+    if wd==0: t.extend((PAPER,GLASS_CANS))
     if wd==2: t.append(PLASTIC)
-    if wd==3: t.append(GLASS_CANS)
     return t
 
 

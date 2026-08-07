@@ -43,13 +43,13 @@ def test_august_7_2026_matrix_all_municipalities():
         "castenedolo": (RESIDUAL,SANITARY),
         "flero": (RESIDUAL,),
         "ghedi": (GLASS_CANS,SANITARY),
-        "isorella": (GLASS_CANS,),
+        "isorella": (),
         "mazzano": (PAPER,),
-        "montichiari": (PAPER,PLASTIC),
-        "montirone": (ORGANIC,),
+        "montichiari": (PAPER,),
+        "montirone": (),
         "nuvolento": (PLASTIC,SANITARY,GLASS_CANS),
         "nuvolera": (PLASTIC,SANITARY),
-        "poncarale": (ORGANIC,),
+        "poncarale": (),
         "remedello": (PLASTIC,),
         "san-zeno-naviglio": (),
         "visano": (),
@@ -127,3 +127,13 @@ def test_ghedi_current_pattern():
 
 def test_mazzano_south_august_7_paper():
     assert _types("mazzano",date(2026,8,7),ZONE_SOUTH)==(PAPER,)
+
+
+def test_v202_reported_calendar_corrections():
+    d=date(2026,8,7)
+    assert _types("isorella",d)==()
+    assert _types("montichiari",d)==(PAPER,)
+    assert _types("montirone",d)==()
+    assert _types("poncarale",d)==()
+    assert _types("poncarale",date(2026,8,8))==(PAPER,ORGANIC)
+    assert _types("san-zeno-naviglio",date(2026,8,10))==(PAPER,GLASS_CANS)
