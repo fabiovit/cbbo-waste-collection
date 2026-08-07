@@ -11,8 +11,7 @@ from homeassistant.util import dt as dt_util
 from .api import CBBOApiClient,CBBOApiError
 from .const import *
 from .schedule import Collection,GREEN,SANITARY
-from .mazzano_fallback import build as build_mazzano_fallback
-from .castenedolo_fallback import build as build_castenedolo_fallback
+from .bundled_2026 import build as build_bundled_2026
 _LOGGER=logging.getLogger(__name__)
 
 class CBBOWasteCoordinator(DataUpdateCoordinator[dict]):
@@ -31,11 +30,12 @@ class CBBOWasteCoordinator(DataUpdateCoordinator[dict]):
             if cached and cached.get("collections"):
                 self._collections=[self._deserialize(x) for x in cached["collections"]]; cache_used=True; source="cache"
             elif self._collections:cache_used=True;source="memory"
-            elif self.municipality=="mazzano" and self.zone in {ZONE_NORTH,ZONE_SOUTH}:
-                self._collections=build_mazzano_fallback(self.zone);source="bundled_mazzano_2026"
-            elif self.municipality=="castenedolo":
-                self._collections=build_castenedolo_fallback();source="bundled_castenedolo_2026"
-            else:raise UpdateFailed(str(err)) from err
+            else:
+                bundled=build_bundled_2026(self.municipality,self.zone)
+                if bundled:
+                    self._collections=bundled;source=f"bundled_{self.municipality.replace('-', '_')}_2026"
+                else:
+                    raise UpdateFailed(str(err)) from err
             _LOGGER.warning("CBBO update fallback %s: %s",source,err)
         return self._build(cache_used,source)
     def _build(self,cache_used,source):

@@ -7,7 +7,7 @@ from homeassistant.helpers import selector
 from .const import *
 
 class CBBOWasteConfigFlow(config_entries.ConfigFlow,domain=DOMAIN):
-    VERSION=2
+    VERSION=3
     def __init__(self):self._municipality=None
     async def async_step_user(self,user_input=None):
         if user_input:

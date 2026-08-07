@@ -28,7 +28,7 @@ MUNICIPALITY_ZONES: dict[str, dict[str, str]] = {
     "mazzano": {ZONE_NORTH: "Zona Nord", ZONE_SOUTH: "Zona Sud"},
 }
 BASE_URL = "https://www.cbbo.it"
-CACHE_VERSION = 1
+CACHE_VERSION = 2
 UPDATE_INTERVAL = timedelta(hours=6)
 SERVICE_REFRESH = "refresh"
 SERVICE_CLEAR_CACHE = "clear_cache"

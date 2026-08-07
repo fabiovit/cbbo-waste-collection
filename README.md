@@ -5,27 +5,59 @@
 [![Validate](https://github.com/fabiovit/cbbo-waste-collection/actions/workflows/validate.yml/badge.svg)](https://github.com/fabiovit/cbbo-waste-collection/actions/workflows/validate.yml)
 [![License](https://img.shields.io/github/license/fabiovit/cbbo-waste-collection)](LICENSE)
 
-Custom integration for Home Assistant that exposes the public CBBO waste collection calendar as sensors, binary sensors and a calendar entity.
+Custom integration for Home Assistant that exposes CBBO waste collection calendars as sensors, binary sensors and a calendar entity.
 
 > **CBBO® e il relativo logo sono marchi dei rispettivi proprietari. Questa è un'integrazione indipendente per Home Assistant, non affiliata, sponsorizzata né approvata ufficialmente da CBBO.**
 
+## Versione 2.0
+
+La versione 2.0 introduce un profilo calendario 2026 integrato per **tutti i 18 Comuni CBBO**. L'integrazione prova comunque prima a leggere i dati pubblicati online da CBBO; se il calendario della pagina non è disponibile in un formato interpretabile, utilizza cache, memoria o il profilo locale del Comune.
+
+Questo evita l'errore `Calendario non riconosciuto nella pagina CBBO` e permette a ogni Comune supportato di essere configurato anche quando il calendario web è renderizzato dinamicamente.
+
 ## Funzioni
 
-- selezione del Comune tramite Config Flow;
-- gestione della Zona Nord/Zona Sud per Mazzano;
+- configurazione tramite Config Flow;
+- tutti i 18 Comuni CBBO;
+- Zona Nord/Zona Sud per Mazzano;
 - raccolte di oggi e domani;
 - prossimo ritiro e giorni mancanti;
-- avviso “esporre stasera”;
-- calendario Home Assistant;
+- binary sensor **Ritiro domani**;
+- binary sensor **Esporre stasera**;
+- calendario Home Assistant con eventi giornalieri;
 - aggiornamento automatico ogni 6 ore;
 - cache locale dell'ultimo calendario valido;
+- fallback 2026 specifico per Comune;
+- sensore **Sorgente dati**;
+- sensore **Ultimo aggiornamento**;
 - diagnostica scaricabile da Home Assistant;
-- servizi per aggiornare i dati e svuotare la cache;
-- traduzioni italiano e inglese.
+- individuazione dell'Ecocalendario PDF pubblicato da CBBO;
+- servizi `refresh` e `clear_cache`;
+- traduzioni italiano e inglese;
+- branding locale per Home Assistant 2026.3+.
 
-## Comuni configurabili
+## Comuni supportati
 
-Acquafredda, Barbariga, Calvisano, Capriano del Colle, Carpenedolo, Castenedolo, Flero, Ghedi, Isorella, Mazzano, Montichiari, Montirone, Nuvolento, Nuvolera, Poncarale, Remedello, San Zeno Naviglio e Visano.
+- Acquafredda
+- Barbariga
+- Calvisano
+- Capriano del Colle
+- Carpenedolo
+- Castenedolo
+- Flero
+- Ghedi
+- Isorella
+- Mazzano
+- Montichiari
+- Montirone
+- Nuvolento
+- Nuvolera
+- Poncarale
+- Remedello
+- San Zeno Naviglio
+- Visano
+
+> Barbariga è gestito da CBBO dal 1° giugno 2026; il profilo locale parte da tale data.
 
 ## Installazione con HACS
 
@@ -33,11 +65,13 @@ Acquafredda, Barbariga, Calvisano, Capriano del Colle, Carpenedolo, Castenedolo,
 2. Inserisci `https://github.com/fabiovit/cbbo-waste-collection` e scegli **Integration**.
 3. Scarica **CBBO Waste Collection**.
 4. Riavvia Home Assistant.
-5. Apri **Impostazioni → Dispositivi e servizi → Aggiungi integrazione** e cerca **CBBO Waste Collection**.
+5. Vai in **Impostazioni → Dispositivi e servizi → Aggiungi integrazione**.
+6. Cerca **CBBO Waste Collection** e scegli il Comune.
+7. Per Mazzano scegli anche **Zona Nord** o **Zona Sud**.
 
 ## Entità
 
-L'entity ID viene generato da Home Assistant usando il nome del dispositivo. Per Mazzano Zona Sud, ad esempio:
+Home Assistant genera gli entity ID usando il nome del dispositivo. Per Mazzano Zona Sud, ad esempio:
 
 ```text
 sensor.differenziata_mazzano_zona_sud_rifiuti_oggi
@@ -51,41 +85,48 @@ binary_sensor.differenziata_mazzano_zona_sud_esporre_stasera
 calendar.differenziata_mazzano_zona_sud_calendario_raccolta
 ```
 
+## Sorgente dati
+
+Il sensore **Sorgente dati** consente di capire immediatamente quali dati sono in uso:
+
+- `online`: calendario letto e riconosciuto dal sito CBBO;
+- `cache`: ultimo calendario online valido salvato localmente;
+- `memory`: ultimo dataset valido mantenuto in memoria durante un errore temporaneo;
+- `bundled_<comune>_2026`: profilo 2026 integrato nell'integrazione per quel Comune.
+
+Esempi:
+
+```text
+bundled_castenedolo_2026
+bundled_ghedi_2026
+bundled_mazzano_2026
+```
+
+La sorgente online ha sempre priorità sul fallback integrato.
+
+## Ecocalendario PDF
+
+Quando la pagina del Comune contiene il collegamento all'Ecocalendario ufficiale, l'integrazione lo rileva e lo riporta nella diagnostica (`ecocalendar_pdf`). Questo è utile per confrontare rapidamente eventuali variazioni straordinarie.
+
 ## Servizi
 
 ### `cbbo_waste_collection.refresh`
-Forza l'aggiornamento di tutte le configurazioni dell'integrazione.
+Forza l'aggiornamento di tutte le configurazioni.
 
 ### `cbbo_waste_collection.clear_cache`
-Elimina la cache locale e forza un nuovo download. Usalo soltanto quando devi risolvere dati obsoleti o errati.
+Elimina la cache locale e forza un nuovo tentativo di download. Non elimina il profilo locale 2026 incluso nell'integrazione.
 
-## Sorgente dati
+## Note sui calendari
 
-Il sensore **Sorgente dati** può mostrare:
+I profili integrati rappresentano i calendari e gli schemi di raccolta 2026 pubblicati da CBBO e servono da fallback quando la pagina online non è interpretabile dal client Home Assistant. **Le variazioni eccezionali legate a festività, recuperi o comunicazioni straordinarie possono essere aggiornate da CBBO durante l'anno:** quando disponibili, i dati online hanno quindi sempre la precedenza.
 
-- `online`: calendario appena letto dal sito;
-- `cache`: ultimo calendario valido salvato localmente;
-- `memory`: dati mantenuti in memoria durante un errore temporaneo;
-- `bundled_mazzano_2026`: fallback locale limitato a Mazzano 2026.
-
-## Limiti
-
-Il sito CBBO non pubblica un'API documentata per questa integrazione. Il parser interpreta i dati pubblici presenti nelle pagine comunali. Modifiche sostanziali al sito possono richiedere un aggiornamento dell'integrazione. La cache riduce l'impatto delle interruzioni temporanee.
-
-## Segnalazioni
-
-Per un calendario errato apri una issue includendo Comune, zona, data attesa, data mostrata e diagnostica dell'integrazione. Non pubblicare dati personali.
+Se rilevi una data errata, apri una issue indicando Comune, data, raccolta attesa, raccolta mostrata e diagnostica dell'integrazione.
 
 ## Icona e identità visiva
 
-Da Home Assistant 2026.3 l'integrazione include direttamente icona e logo locali. L'icona del progetto utilizza il simbolo universale del riciclo ♻️ e non il logo ufficiale CBBO.
+L'integrazione include direttamente icona e logo locali. L'icona del progetto utilizza il simbolo universale del riciclo ♻️ e non il logo ufficiale CBBO.
 
 ## Credits
 
 - 💡 Idea originale: Riccardo Cosi
 - 👨‍💻 Sviluppo e manutenzione: Fabio Vittori
-
-
-### Sorgenti dati e fallback
-
-L'integrazione tenta prima di leggere i dati pubblicati nella pagina CBBO del Comune. Quando il calendario giornaliero non è esposto nell'HTML, la diagnostica riporta anche il link all'Ecocalendario PDF ufficiale. Per Mazzano e Castenedolo 2026 è disponibile un calendario locale di sicurezza verificato sul rispettivo Ecocalendario CBBO.

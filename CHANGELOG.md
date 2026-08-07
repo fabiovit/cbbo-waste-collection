@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.0.0
+
+- Supporto operativo a tutti i 18 Comuni CBBO tramite profili calendario 2026 integrati.
+- La sorgente online resta prioritaria; fallback automatico su cache, memoria e profilo locale del Comune.
+- Rimossi i fallback separati di Mazzano e Castenedolo in favore di un unico motore `bundled_2026`.
+- Mantenuta la gestione Zona Nord/Zona Sud per Mazzano.
+- Aggiunto supporto a Barbariga dal 1° giugno 2026.
+- Aggiornati gli schemi 2026 di Acquafredda, Calvisano, Capriano del Colle, Carpenedolo, Castenedolo, Flero, Ghedi, Isorella, Mazzano, Montichiari, Montirone, Nuvolento, Nuvolera, Poncarale, Remedello, San Zeno Naviglio e Visano.
+- Cache schema aggiornata alla versione 2 e Config Flow alla versione 3.
+- Diagnostica mantiene sorgente dati, ultimo errore e link Ecocalendario PDF.
+- Nessuna modifica agli entity ID esistenti.
+- Credits: idea originale di Riccardo Cosi.
+
 ## 1.0.2
 
 - Aggiunto fallback 2026 per Castenedolo basato sull'Ecocalendario CBBO ufficiale.
