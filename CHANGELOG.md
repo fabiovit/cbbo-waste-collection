@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.1.3
+
+- Corretto definitivamente l'errore rosso mostrato nella sidebar quando un calendario locale 2026 o la cache forniscono dati validi.
+- Il backend non espone più come errore attivo il fallimento del tentativo online quando è già attivo un fallback valido.
+- Cambiato il nome del web component del pannello per forzare il caricamento del nuovo frontend anche nelle sessioni Home Assistant già aperte.
+- Aggiornato `info.md` mostrato da HACS dalla vecchia dicitura "versione 2.0" a `2.1.3`.
+- Nessuna modifica ai calendari, agli entity ID o alle configurazioni esistenti.
+
 ## 2.1.2
 
 - Pulita la diagnostica della dashboard laterale.

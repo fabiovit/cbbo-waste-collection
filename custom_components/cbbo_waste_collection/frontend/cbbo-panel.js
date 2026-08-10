@@ -1,4 +1,4 @@
-const CBBO_PANEL_VERSION = "2.1.2";
+const CBBO_PANEL_VERSION = "2.1.3";
 
 const STRINGS = {
   it: {
@@ -251,6 +251,6 @@ class CBBOWasteCollectionPanel extends HTMLElement {
   }
 }
 
-if (!customElements.get("cbbo-waste-collection-panel")) {
-  customElements.define("cbbo-waste-collection-panel", CBBOWasteCollectionPanel);
+if (!customElements.get("cbbo-waste-collection-panel-v213")) {
+  customElements.define("cbbo-waste-collection-panel-v213", CBBOWasteCollectionPanel);
 }

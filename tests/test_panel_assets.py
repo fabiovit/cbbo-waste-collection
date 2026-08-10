@@ -6,10 +6,10 @@ INTEGRATION = ROOT / "custom_components" / "cbbo_waste_collection"
 
 def test_panel_assets_and_version():
     manifest = json.loads((INTEGRATION / "manifest.json").read_text())
-    assert manifest["version"] == "2.1.2"
+    assert manifest["version"] == "2.1.3"
     assert "frontend" in manifest["dependencies"]
     panel = (INTEGRATION / "frontend" / "cbbo-panel.js").read_text()
-    assert 'customElements.define("cbbo-waste-collection-panel"' in panel
+    assert 'customElements.define("cbbo-waste-collection-panel-v213"' in panel
     assert "cbbo_waste_collection/panel_data" in panel
 
 def test_panel_backend_registered():
@@ -28,3 +28,16 @@ def test_panel_hides_fallback_parser_error():
     backend = (INTEGRATION / "panel.py").read_text()
     assert '"source_status": (' in backend
     assert 'startswith("bundled_")' in backend
+
+
+def test_v213_suppresses_stale_fallback_error():
+    backend = (INTEGRATION / "panel.py").read_text()
+    assert 'PANEL_COMPONENT = "cbbo-waste-collection-panel-v213"' in backend
+    assert 'else None' in backend
+    assert 'startswith("bundled_")' in backend
+
+def test_v213_hacs_info_is_current():
+    info = (ROOT / "info.md").read_text()
+    assert "versione 2.1.3" in info
+    assert "La versione 2.0 supporta" not in info
+    assert "Dashboard laterale" in info

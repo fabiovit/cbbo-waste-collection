@@ -13,7 +13,7 @@ from homeassistant.core import HomeAssistant, callback
 
 from .const import DOMAIN, MUNICIPALITY_ZONES, ZONE_DEFAULT
 
-PANEL_COMPONENT = "cbbo-waste-collection-panel"
+PANEL_COMPONENT = "cbbo-waste-collection-panel-v213"
 PANEL_URL_PATH = "cbbo-waste-collection"
 PANEL_JS_URL = "/cbbo_waste_collection/cbbo-panel.js"
 
@@ -83,13 +83,20 @@ def _entry_payload(entry: Any) -> dict[str, Any] | None:
         "source_url": data.get("source"),
         "pdf_url": data.get("pdf_url"),
         "last_update": _iso(data.get("last_update")),
-        "last_error": data.get("last_error"),
         "source_status": (
             "fallback"
             if str(data.get("data_source", "")).startswith("bundled_")
             else "cache"
             if data.get("cache_used", False)
             else "online"
+        ),
+        # A failed online parsing attempt is not an active error once a valid
+        # cache or bundled calendar has successfully supplied the data.
+        "last_error": (
+            data.get("last_error")
+            if not str(data.get("data_source", "")).startswith("bundled_")
+            and not data.get("cache_used", False)
+            else None
         ),
         "cache_used": data.get("cache_used", False),
         "upcoming": upcoming,
@@ -113,7 +120,7 @@ def websocket_panel_data(
     connection.send_result(
         msg["id"],
         {
-            "version": "2.1.2",
+            "version": "2.1.3",
             "entries": entries,
             "ko_fi": "https://ko-fi.com/fabvittori",
         },
@@ -141,6 +148,6 @@ async def async_setup_panel(hass: HomeAssistant) -> None:
             webcomponent_name=PANEL_COMPONENT,
             sidebar_title="CBBO Waste Collection",
             sidebar_icon="mdi:recycle",
-            module_url=f"{PANEL_JS_URL}?v=2.1.2",
+            module_url=f"{PANEL_JS_URL}?v=2.1.3",
             require_admin=False,
         )
