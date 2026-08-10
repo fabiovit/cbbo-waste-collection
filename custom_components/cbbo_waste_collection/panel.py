@@ -7,7 +7,7 @@ from typing import Any
 
 import voluptuous as vol
 
-from homeassistant.components import frontend, websocket_api
+from homeassistant.components import frontend, panel_custom, websocket_api
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.core import HomeAssistant, callback
 
@@ -106,7 +106,7 @@ def websocket_panel_data(
     connection.send_result(
         msg["id"],
         {
-            "version": "2.1.0",
+            "version": "2.1.1",
             "entries": entries,
             "ko_fi": "https://ko-fi.com/fabvittori",
         },
@@ -125,16 +125,15 @@ async def async_setup_panel(hass: HomeAssistant) -> None:
         ]
     )
 
-    frontend.add_extra_js_url(hass, PANEL_JS_URL)
     websocket_api.async_register_command(hass, websocket_panel_data)
 
     if not frontend.async_panel_exists(hass, PANEL_URL_PATH):
-        frontend.async_register_built_in_panel(
+        await panel_custom.async_register_panel(
             hass,
-            component_name=PANEL_COMPONENT,
+            frontend_url_path=PANEL_URL_PATH,
+            webcomponent_name=PANEL_COMPONENT,
             sidebar_title="CBBO Waste Collection",
             sidebar_icon="mdi:recycle",
-            sidebar_default_visible=True,
-            frontend_url_path=PANEL_URL_PATH,
+            module_url=f"{PANEL_JS_URL}?v=2.1.1",
             require_admin=False,
         )

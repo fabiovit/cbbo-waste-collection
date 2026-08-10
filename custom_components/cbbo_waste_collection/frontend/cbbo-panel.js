@@ -1,4 +1,4 @@
-const CBBO_PANEL_VERSION = "2.1.0";
+const CBBO_PANEL_VERSION = "2.1.1";
 
 const STRINGS = {
   it: {

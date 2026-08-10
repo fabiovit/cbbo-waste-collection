@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.1.1
+
+- Corretto il pannello CBBO nella barra laterale che in v2.1.0 poteva apparire completamente bianco.
+- Il frontend viene ora registrato tramite il meccanismo `panel_custom` previsto da Home Assistant.
+- Aggiunto cache-busting al modulo JavaScript del pannello per evitare il riutilizzo della versione 2.1.0 dal browser.
+- Nessuna modifica ai calendari, agli entity ID o alle configurazioni esistenti.
+
 ## 2.1.0
 
 - Aggiunta dashboard CBBO dedicata nella barra laterale di Home Assistant.

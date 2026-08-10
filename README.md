@@ -133,7 +133,7 @@ L'integrazione include direttamente icona e logo locali. L'icona del progetto ut
 
 ## 🖥️ Dashboard dedicata nella barra laterale
 
-Dalla versione **2.1.0**, CBBO Waste Collection aggiunge automaticamente una voce
+Dalla versione **2.1.1**, CBBO Waste Collection aggiunge automaticamente una voce
 **♻️ CBBO Waste Collection** nella barra laterale di Home Assistant.
 
 La dashboard mostra rifiuti di oggi e domani, prossimo ritiro, giorni mancanti,
