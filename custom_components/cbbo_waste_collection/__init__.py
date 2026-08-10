@@ -4,8 +4,10 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant,ServiceCall
 from .const import DOMAIN,PLATFORMS,SERVICE_REFRESH,SERVICE_CLEAR_CACHE
 from .coordinator import CBBOWasteCoordinator
+from .panel import async_setup_panel
 
 async def async_setup(hass:HomeAssistant,config:dict)->bool:
+    await async_setup_panel(hass)
     async def refresh(call:ServiceCall):
         for entry in hass.config_entries.async_entries(DOMAIN):
             coordinator=getattr(entry,"runtime_data",None)

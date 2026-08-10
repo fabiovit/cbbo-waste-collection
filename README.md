@@ -130,6 +130,19 @@ Se rilevi una data errata, apri una issue indicando Comune, data, raccolta attes
 
 L'integrazione include direttamente icona e logo locali. L'icona del progetto utilizza il simbolo universale del riciclo ♻️ e non il logo ufficiale CBBO.
 
+
+## 🖥️ Dashboard dedicata nella barra laterale
+
+Dalla versione **2.1.0**, CBBO Waste Collection aggiunge automaticamente una voce
+**♻️ CBBO Waste Collection** nella barra laterale di Home Assistant.
+
+La dashboard mostra rifiuti di oggi e domani, prossimo ritiro, giorni mancanti,
+promemoria serale, prossime raccolte, sorgente dati e ultimo aggiornamento.
+Con più Comuni configurati compare un selettore Comune/zona.
+
+Sono inclusi anche aggiornamento manuale e collegamenti rapidi a CBBO e Ko-fi.
+Non è richiesta alcuna configurazione Lovelace aggiuntiva.
+
 ## ☕ Supporta il progetto
 
 CBBO Waste Collection è gratuito e open source.

@@ -1,0 +1,20 @@
+from pathlib import Path
+import json
+
+ROOT = Path(__file__).resolve().parents[1]
+INTEGRATION = ROOT / "custom_components" / "cbbo_waste_collection"
+
+def test_panel_assets_and_version():
+    manifest = json.loads((INTEGRATION / "manifest.json").read_text())
+    assert manifest["version"] == "2.1.0"
+    assert "frontend" in manifest["dependencies"]
+    panel = (INTEGRATION / "frontend" / "cbbo-panel.js").read_text()
+    assert 'customElements.define("cbbo-waste-collection-panel"' in panel
+    assert "cbbo_waste_collection/panel_data" in panel
+
+def test_panel_backend_registered():
+    panel = (INTEGRATION / "panel.py").read_text()
+    assert 'PANEL_URL_PATH = "cbbo-waste-collection"' in panel
+    assert "async_register_built_in_panel" in panel
+    assert "async_register_static_paths" in panel
+    assert 'f"{DOMAIN}/panel_data"' in panel

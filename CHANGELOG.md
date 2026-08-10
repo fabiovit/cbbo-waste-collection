@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.1.0
+
+- Aggiunta dashboard CBBO dedicata nella barra laterale di Home Assistant.
+- Aggiunti pannelli per oggi, domani, prossimo ritiro, giorni mancanti e promemoria serale.
+- Aggiunta vista delle prossime raccolte.
+- Aggiunto selettore Comune/zona per installazioni con più configurazioni.
+- Aggiunto aggiornamento manuale direttamente dalla dashboard.
+- Aggiunti collegamenti rapidi al sito CBBO e a Ko-fi.
+- Aggiunto endpoint WebSocket interno per alimentare il pannello senza dipendere dagli entity ID.
+- Nessuna modifica agli entity ID o alle configurazioni esistenti.
+
 ## 2.0.2
 
 - Corretti i calendari 2026 di Isorella, Montichiari, Montirone, Poncarale e San Zeno Naviglio.
