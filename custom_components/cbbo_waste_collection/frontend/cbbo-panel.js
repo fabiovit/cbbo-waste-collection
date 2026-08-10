@@ -1,4 +1,4 @@
-const CBBO_PANEL_VERSION = "2.1.1";
+const CBBO_PANEL_VERSION = "2.1.2";
 
 const STRINGS = {
   it: {
@@ -24,6 +24,10 @@ const STRINGS = {
     support: "Supporta il progetto",
     openCbbo: "Apri CBBO",
     diagnostic: "Informazioni",
+    status: "Stato",
+    online: "Dati online",
+    fallback: "Calendario locale 2026 attivo",
+    cache: "Dati in cache",
     error: "Impossibile caricare i dati della dashboard.",
     daysUnit: "giorni",
   },
@@ -50,6 +54,10 @@ const STRINGS = {
     support: "Support the project",
     openCbbo: "Open CBBO",
     diagnostic: "Information",
+    status: "Status",
+    online: "Online data",
+    fallback: "Local 2026 calendar active",
+    cache: "Cached data",
     error: "Unable to load dashboard data.",
     daysUnit: "days",
   },
@@ -230,7 +238,7 @@ class CBBOWasteCollectionPanel extends HTMLElement {
         ${this._card("🚚",this._t("tomorrowCollection"),entry.collection_tomorrow?this._t("yes"):this._t("no"),"",entry.collection_tomorrow?"positive":"")}
       </section>
       <section class="section"><h2>📆 ${this._t("calendar")}</h2><div class="upcoming">${upcoming||`<div>${this._t("none")}</div>`}</div></section>
-      <section class="section"><h2>ℹ️ ${this._t("diagnostic")}</h2><div class="meta"><div>${this._t("source")}<strong>${entry.data_source||"—"}</strong></div><div>${this._t("updated")}<strong>${this._formatTimestamp(entry.last_update)}</strong></div>${entry.last_error?`<div class="error">Error<strong>${entry.last_error}</strong></div>`:""}<div>Version<strong>${this._data.version||CBBO_PANEL_VERSION}</strong></div></div></section>
+      <section class="section"><h2>ℹ️ ${this._t("diagnostic")}</h2><div class="meta"><div>${this._t("source")}<strong>${entry.data_source||"—"}</strong></div><div>${this._t("updated")}<strong>${this._formatTimestamp(entry.last_update)}</strong></div><div>${this._t("status")}<strong>${this._t(entry.source_status||"online")}</strong></div><div>Version<strong>${this._data.version||CBBO_PANEL_VERSION}</strong></div>${entry.last_error && entry.source_status === "online" ? `<div class="error">Error<strong>${entry.last_error}</strong></div>` : ""}</div></section>
       <div class="footer">CBBO Waste Collection · Riccardo Cosi / Fabio Vittori · v${this._data.version||CBBO_PANEL_VERSION}</div>
     </div>`;
 

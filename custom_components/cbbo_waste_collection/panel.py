@@ -84,6 +84,13 @@ def _entry_payload(entry: Any) -> dict[str, Any] | None:
         "pdf_url": data.get("pdf_url"),
         "last_update": _iso(data.get("last_update")),
         "last_error": data.get("last_error"),
+        "source_status": (
+            "fallback"
+            if str(data.get("data_source", "")).startswith("bundled_")
+            else "cache"
+            if data.get("cache_used", False)
+            else "online"
+        ),
         "cache_used": data.get("cache_used", False),
         "upcoming": upcoming,
     }
@@ -106,7 +113,7 @@ def websocket_panel_data(
     connection.send_result(
         msg["id"],
         {
-            "version": "2.1.1",
+            "version": "2.1.2",
             "entries": entries,
             "ko_fi": "https://ko-fi.com/fabvittori",
         },
@@ -134,6 +141,6 @@ async def async_setup_panel(hass: HomeAssistant) -> None:
             webcomponent_name=PANEL_COMPONENT,
             sidebar_title="CBBO Waste Collection",
             sidebar_icon="mdi:recycle",
-            module_url=f"{PANEL_JS_URL}?v=2.1.1",
+            module_url=f"{PANEL_JS_URL}?v=2.1.2",
             require_admin=False,
         )

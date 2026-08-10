@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.1.2
+
+- Pulita la diagnostica della dashboard laterale.
+- Quando un calendario locale 2026 viene caricato correttamente, il precedente errore del tentativo online non viene più mostrato in rosso nella dashboard.
+- Aggiunto uno stato leggibile della sorgente: dati online, cache o calendario locale 2026.
+- Gli errori tecnici restano disponibili nella diagnostica interna dell'integrazione.
+- Nessuna modifica ai calendari, agli entity ID o alle configurazioni esistenti.
+
 ## 2.1.1
 
 - Corretto il pannello CBBO nella barra laterale che in v2.1.0 poteva apparire completamente bianco.
