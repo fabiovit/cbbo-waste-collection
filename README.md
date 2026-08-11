@@ -133,7 +133,7 @@ L'integrazione include direttamente icona e logo locali. L'icona del progetto ut
 
 ## 🖥️ Dashboard dedicata nella barra laterale
 
-Dalla versione **2.1.6**, CBBO Waste Collection aggiunge automaticamente una voce
+Dalla versione **2.2.0**, CBBO Waste Collection aggiunge automaticamente una voce
 **♻️ CBBO Waste Collection** nella barra laterale di Home Assistant.
 
 La dashboard mostra rifiuti di oggi e domani, prossimo ritiro, giorni mancanti,
@@ -157,3 +157,7 @@ https://ko-fi.com/fabvittori
 - 👨‍💻 Sviluppo e manutenzione: Fabio Vittori
 
 Su mobile la dashboard laterale include un pulsante hamburger `mdi:menu` in alto a sinistra per aprire direttamente il menu laterale di Home Assistant.
+
+## 🎨 Interfaccia 2.2
+
+La dashboard laterale ora usa una testata compatta in stile PawBook/Home Assistant, con hamburger mobile, logo CBBO, versione, Comune/zona e supporto Ko-fi discreto. Il precedente hero verde è stato rimosso.

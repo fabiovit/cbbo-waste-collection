@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.2.0
+
+- Ridisegnata completamente la testata della dashboard CBBO in stile Home Assistant/PawBook.
+- Rimosso il precedente hero verde.
+- Aggiunto logo CBBO locale nell'header.
+- Su mobile: hamburger a sinistra, logo e titolo compatti, versione e Ko-fi a destra.
+- Separati i controlli (Comune/zona, sito CBBO e aggiornamento) dal branding.
+- Migliorata la resa responsive e alleggerite ombre e bordi delle card.
+- Nessuna modifica ai calendari, agli entity ID o alle configurazioni esistenti.
+
 ## 2.1.6
 
 - Sostituito il precedente collegamento alla Dashboard con un vero pulsante hamburger `mdi:menu`.

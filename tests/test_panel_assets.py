@@ -6,10 +6,10 @@ INTEGRATION = ROOT / "custom_components" / "cbbo_waste_collection"
 
 def test_panel_assets_and_version():
     manifest = json.loads((INTEGRATION / "manifest.json").read_text())
-    assert manifest["version"] == "2.1.6"
+    assert manifest["version"] == "2.2.0"
     assert "frontend" in manifest["dependencies"]
     panel = (INTEGRATION / "frontend" / "cbbo-panel.js").read_text()
-    assert 'customElements.define("cbbo-waste-collection-panel-v216"' in panel
+    assert 'customElements.define("cbbo-waste-collection-panel-v220"' in panel
     assert "cbbo_waste_collection/panel_data" in panel
 
 def test_panel_backend_registered():
@@ -30,15 +30,15 @@ def test_panel_hides_fallback_parser_error():
     assert 'startswith("bundled_")' in backend
 
 
-def test_v216_suppresses_stale_fallback_error():
+def test_v220_suppresses_stale_fallback_error():
     backend = (INTEGRATION / "panel.py").read_text()
-    assert 'PANEL_COMPONENT = "cbbo-waste-collection-panel-v216"' in backend
+    assert 'PANEL_COMPONENT = "cbbo-waste-collection-panel-v220"' in backend
     assert 'else None' in backend
     assert 'startswith("bundled_")' in backend
 
-def test_v216_hacs_info_is_current():
+def test_v220_hacs_info_is_current():
     info = (ROOT / "info.md").read_text()
-    assert "versione 2.1.6" in info
+    assert "versione 2.2.0" in info
     assert "La versione 2.0 supporta" not in info
     assert "Dashboard laterale" in info
 
@@ -46,7 +46,7 @@ def test_v216_hacs_info_is_current():
 
 
 
-def test_v216_hamburger_opens_ha_menu():
+def test_v220_hamburger_opens_ha_menu():
     panel = (INTEGRATION / "frontend" / "cbbo-panel.js").read_text()
     assert 'id="ha-menu"' in panel
     assert 'icon="mdi:menu"' in panel
@@ -54,7 +54,21 @@ def test_v216_hamburger_opens_ha_menu():
     assert 'bubbles: true' in panel
     assert 'composed: true' in panel
     assert '.menu-button{display:none' in panel
-    assert '@media(max-width:720px){.menu-button{display:inline-flex}' in panel
+    assert '@media(max-width:720px){' in panel
+    assert '.menu-button{display:inline-flex}' in panel
     assert 'mdi:view-dashboard' not in panel
     backend = (INTEGRATION / "panel.py").read_text()
-    assert 'PANEL_COMPONENT = "cbbo-waste-collection-panel-v216"' in backend
+    assert 'PANEL_COMPONENT = "cbbo-waste-collection-panel-v220"' in backend
+
+
+def test_v220_integrated_header():
+    panel = (INTEGRATION / "frontend" / "cbbo-panel.js").read_text()
+    assert 'class="brand-copy"' in panel
+    assert 'class="version-badge"' in panel
+    assert 'src="/cbbo_waste_collection/icon.png"' in panel
+    assert 'class="link-button support-icon"' in panel
+    assert 'radial-gradient(circle at 10% 0%' not in panel
+    assert 'id="ha-menu"' in panel
+    backend = (INTEGRATION / "panel.py").read_text()
+    assert 'PANEL_ICON_URL = "/cbbo_waste_collection/icon.png"' in backend
+    assert 'PANEL_COMPONENT = "cbbo-waste-collection-panel-v220"' in backend
