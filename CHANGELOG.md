@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.1.5
+
+- Il pulsante per tornare alla Dashboard principale di Home Assistant viene ora mostrato solo su mobile.
+- Su desktop il pulsante è nascosto perché la sidebar di Home Assistant è già disponibile.
+- Nessuna modifica ai calendari, agli entity ID o alle configurazioni esistenti.
+
+## 2.1.4
+
+- Aggiunto nella dashboard laterale un pulsante rapido per tornare alla Dashboard principale di Home Assistant.
+- Il pulsante utilizza l'icona `mdi:view-dashboard` ed è disponibile sia su desktop sia su mobile.
+- Forzato il caricamento del nuovo frontend tramite nuovo web component e cache-busting.
+- Nessuna modifica ai calendari, agli entity ID o alle configurazioni esistenti.
+
 ## 2.1.3
 
 - Corretto definitivamente l'errore rosso mostrato nella sidebar quando un calendario locale 2026 o la cache forniscono dati validi.

@@ -1,4 +1,4 @@
-const CBBO_PANEL_VERSION = "2.1.3";
+const CBBO_PANEL_VERSION = "2.1.5";
 
 const STRINGS = {
   it: {
@@ -22,6 +22,7 @@ const STRINGS = {
     refresh: "Aggiorna",
     refreshing: "Aggiornamento…",
     support: "Supporta il progetto",
+    dashboard: "Dashboard Home Assistant",
     openCbbo: "Apri CBBO",
     diagnostic: "Informazioni",
     status: "Stato",
@@ -52,6 +53,7 @@ const STRINGS = {
     refresh: "Refresh",
     refreshing: "Refreshing…",
     support: "Support the project",
+    dashboard: "Home Assistant dashboard",
     openCbbo: "Open CBBO",
     diagnostic: "Information",
     status: "Status",
@@ -202,10 +204,10 @@ class CBBOWasteCollectionPanel extends HTMLElement {
     const styles = `<style>
       :host{display:block;min-height:100%;color:var(--primary-text-color);background:radial-gradient(circle at 10% 0%,rgba(76,175,80,.12),transparent 32rem),var(--primary-background-color);font-family:var(--paper-font-body1_-_font-family,system-ui,sans-serif)}
       *{box-sizing:border-box}.page{max-width:1180px;margin:0 auto;padding:24px 20px 40px}.hero{display:flex;gap:18px;align-items:center;justify-content:space-between;margin-bottom:20px}.hero-main{display:flex;align-items:center;gap:16px;min-width:0}.logo{width:62px;height:62px;border-radius:18px;display:grid;place-items:center;font-size:34px;background:linear-gradient(145deg,#2e7d32,#66bb6a);box-shadow:0 10px 28px rgba(46,125,50,.25);color:white;flex:0 0 auto}h1{font-size:28px;line-height:1.1;margin:0 0 6px}.subtitle{color:var(--secondary-text-color);font-size:14px}.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-      button,select,.link-button{border:1px solid var(--divider-color);background:var(--card-background-color);color:var(--primary-text-color);border-radius:12px;min-height:42px;padding:0 14px;font:inherit;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:7px}button:hover,.link-button:hover{background:var(--secondary-background-color)}button.primary{border-color:#388e3c;background:#388e3c;color:white}button:disabled{opacity:.65;cursor:wait}.selector-wrap{display:flex;align-items:center;gap:10px;margin-bottom:18px;color:var(--secondary-text-color)}select{min-width:240px}
+      button,select,.link-button{border:1px solid var(--divider-color);background:var(--card-background-color);color:var(--primary-text-color);border-radius:12px;min-height:42px;padding:0 14px;font:inherit;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:7px}button:hover,.link-button:hover{background:var(--secondary-background-color)}button.primary{border-color:#388e3c;background:#388e3c;color:white}.icon-button{display:none;width:42px;min-width:42px;padding:0;justify-content:center}.icon-button ha-icon{--mdc-icon-size:22px}button:disabled{opacity:.65;cursor:wait}.selector-wrap{display:flex;align-items:center;gap:10px;margin-bottom:18px;color:var(--secondary-text-color)}select{min-width:240px}
       .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:18px}.card,.section{background:var(--card-background-color);border:1px solid var(--divider-color);border-radius:18px;box-shadow:var(--ha-card-box-shadow,0 2px 8px rgba(0,0,0,.08))}.card{padding:18px;min-height:138px}.card-head{display:flex;align-items:center;gap:9px;color:var(--secondary-text-color);font-weight:600;margin-bottom:14px}.card-icon{font-size:22px}.card-value{font-size:22px;font-weight:700;line-height:1.25}.card-detail{margin-top:8px;color:var(--secondary-text-color);font-size:13px}.positive .card-value{color:var(--success-color,#43a047)}
       .section{padding:20px;margin-bottom:18px}.section h2{font-size:18px;margin:0 0 14px}.upcoming{display:grid;gap:8px}.row{display:grid;grid-template-columns:160px 1fr auto;gap:12px;align-items:center;padding:11px 12px;border-radius:11px;background:var(--secondary-background-color)}.row-date{font-weight:600;text-transform:capitalize}.row-icons{font-size:20px;letter-spacing:2px}.meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;color:var(--secondary-text-color);font-size:13px}.meta strong{display:block;color:var(--primary-text-color);margin-top:4px;word-break:break-word}.empty{padding:64px 24px;text-align:center;color:var(--secondary-text-color)}.empty-icon{font-size:58px;margin-bottom:14px}.empty h2{color:var(--primary-text-color);margin-bottom:8px}.footer{text-align:center;color:var(--secondary-text-color);font-size:12px;padding-top:8px}.error{color:var(--error-color,#db4437)}
-      @media(max-width:720px){.page{padding:16px 12px 28px}.hero{align-items:flex-start;flex-direction:column}.actions{justify-content:flex-start;width:100%}.grid{grid-template-columns:1fr}.selector-wrap{align-items:stretch;flex-direction:column}select{width:100%}.row{grid-template-columns:1fr auto}.row-value{grid-column:1/-1}.meta{grid-template-columns:1fr}}
+      @media(max-width:720px){.icon-button{display:inline-flex}.page{padding:16px 12px 28px}.hero{align-items:flex-start;flex-direction:column}.actions{justify-content:flex-start;width:100%}.grid{grid-template-columns:1fr}.selector-wrap{align-items:stretch;flex-direction:column}select{width:100%}.row{grid-template-columns:1fr auto}.row-value{grid-column:1/-1}.meta{grid-template-columns:1fr}}
     </style>`;
 
     if (!this._data) {
@@ -227,7 +229,7 @@ class CBBOWasteCollectionPanel extends HTMLElement {
 
     this.shadowRoot.innerHTML = `${styles}<div class="page">
       <header class="hero"><div class="hero-main"><div class="logo">♻</div><div><h1>${this._t("title")}</h1><div class="subtitle">${this._entryLabel(entry)} · ${this._t("subtitle")}</div></div></div>
-      <div class="actions">${entry.source_url ? `<a class="link-button" href="${entry.source_url}" target="_blank" rel="noopener">🌐 ${this._t("openCbbo")}</a>` : ""}<a class="link-button" href="${this._data.ko_fi}" target="_blank" rel="noopener">☕ ${this._t("support")}</a><button id="refresh" class="primary" ${this._loading ? "disabled" : ""}>↻ ${this._loading ? this._t("refreshing") : this._t("refresh")}</button></div></header>
+      <div class="actions"><a class="link-button icon-button" href="/" title="${this._t("dashboard")}" aria-label="${this._t("dashboard")}"><ha-icon icon="mdi:view-dashboard"></ha-icon></a>${entry.source_url ? `<a class="link-button" href="${entry.source_url}" target="_blank" rel="noopener">🌐 ${this._t("openCbbo")}</a>` : ""}<a class="link-button" href="${this._data.ko_fi}" target="_blank" rel="noopener">☕ ${this._t("support")}</a><button id="refresh" class="primary" ${this._loading ? "disabled" : ""}>↻ ${this._loading ? this._t("refreshing") : this._t("refresh")}</button></div></header>
       ${selector}
       <section class="grid">
         ${this._card(this._collectionIcons(entry.today),this._t("today"),this._collectionText(entry.today))}
@@ -251,6 +253,6 @@ class CBBOWasteCollectionPanel extends HTMLElement {
   }
 }
 
-if (!customElements.get("cbbo-waste-collection-panel-v213")) {
-  customElements.define("cbbo-waste-collection-panel-v213", CBBOWasteCollectionPanel);
+if (!customElements.get("cbbo-waste-collection-panel-v215")) {
+  customElements.define("cbbo-waste-collection-panel-v215", CBBOWasteCollectionPanel);
 }
