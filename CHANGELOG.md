@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.1.6
+
+- Sostituito il precedente collegamento alla Dashboard con un vero pulsante hamburger `mdi:menu`.
+- Su mobile il pulsante è posizionato in alto a sinistra nell'header CBBO, come in PawBook.
+- Il pulsante apre direttamente il menu laterale di Home Assistant tramite l'evento `hass-toggle-menu`.
+- Il pulsante resta nascosto su desktop.
+- Nessuna modifica ai calendari, agli entity ID o alle configurazioni esistenti.
+
 ## 2.1.5
 
 - Il pulsante per tornare alla Dashboard principale di Home Assistant viene ora mostrato solo su mobile.

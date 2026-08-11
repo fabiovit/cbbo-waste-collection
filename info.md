@@ -2,14 +2,14 @@
 
 Calendari della raccolta differenziata CBBO in Home Assistant.
 
-La versione 2.1.5 supporta tutti i 18 Comuni CBBO con sorgente online, cache e profili locali 2026 di fallback.
+La versione 2.1.6 supporta tutti i 18 Comuni CBBO con sorgente online, cache e profili locali 2026 di fallback.
 
 Consulta il README del repository per installazione, configurazione e dettagli sulle sorgenti dati.
 
 
 ## Dashboard laterale
 
-Dalla versione **2.1.5** l'integrazione aggiunge una voce **CBBO Waste Collection**
+Dalla versione **2.1.6** l'integrazione aggiunge una voce **CBBO Waste Collection**
 nella barra laterale di Home Assistant con raccolte di oggi e domani, prossimo
 ritiro, promemoria, prossime raccolte, sorgente dati e aggiornamento manuale.
 

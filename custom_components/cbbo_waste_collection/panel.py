@@ -13,7 +13,7 @@ from homeassistant.core import HomeAssistant, callback
 
 from .const import DOMAIN, MUNICIPALITY_ZONES, ZONE_DEFAULT
 
-PANEL_COMPONENT = "cbbo-waste-collection-panel-v215"
+PANEL_COMPONENT = "cbbo-waste-collection-panel-v216"
 PANEL_URL_PATH = "cbbo-waste-collection"
 PANEL_JS_URL = "/cbbo_waste_collection/cbbo-panel.js"
 
@@ -120,7 +120,7 @@ def websocket_panel_data(
     connection.send_result(
         msg["id"],
         {
-            "version": "2.1.5",
+            "version": "2.1.6",
             "entries": entries,
             "ko_fi": "https://ko-fi.com/fabvittori",
         },
@@ -148,6 +148,6 @@ async def async_setup_panel(hass: HomeAssistant) -> None:
             webcomponent_name=PANEL_COMPONENT,
             sidebar_title="CBBO Waste Collection",
             sidebar_icon="mdi:recycle",
-            module_url=f"{PANEL_JS_URL}?v=2.1.5",
+            module_url=f"{PANEL_JS_URL}?v=2.1.6",
             require_admin=False,
         )
