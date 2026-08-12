@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.3.1
+
+- Restyling grafico della Waste Center senza modifiche alla logica dati.
+- Icone dei rifiuti ingrandite in hero, riepiloghi, timeline e calendario.
+- Badge delle tipologie più leggibili e visivamente distinti.
+- Hero “Stasera si espone” più forte e immediato.
+- Riepilogo prossimo ritiro più evidente.
+- Timeline con icone grandi e maggiore gerarchia tipografica.
+- Migliorata la leggibilità su mobile e nei temi chiaro/scuro.
+- Struttura, menu, calendari, entity ID e configurazioni invariati.
+
 ## 2.3.0
 
 - Corretta la validazione Hassfest: ordine delle chiavi del manifest conforme a Home Assistant.
