@@ -1,4 +1,4 @@
-const CBBO_PANEL_VERSION = "2.3.4";
+const CBBO_PANEL_VERSION = "2.3.5";
 
 const WASTE_META = {
   organic:   { icon:"mdi:food-apple-outline", short:"Organico", cls:"organic" },
@@ -22,6 +22,7 @@ class CBBOWasteCollectionPanel extends HTMLElement {
     this._selectedEntryId=localStorage.getItem('cbbo-panel-entry')||null;
     this._shellMounted=false;
     this._refreshTimer=null;
+    this._locationPickerOpen=false;
   }
   set hass(v){
     this._hass=v;
@@ -29,7 +30,9 @@ class CBBOWasteCollectionPanel extends HTMLElement {
     if(!this._data || Date.now()-this._lastLoad>30000){
       clearTimeout(this._refreshTimer);
       this._refreshTimer=setTimeout(()=>this.loadData(),30);
-    }else this.renderMain();
+    }else if(!(this._view==='place' && this._locationPickerOpen)){
+      this.renderMain();
+    }
   }
   get hass(){return this._hass}
   set narrow(v){this._narrow=v}
@@ -39,7 +42,7 @@ class CBBOWasteCollectionPanel extends HTMLElement {
 
   async loadData(force=false){
     if(!this._hass||this._loading) return;
-    if(!force&&this._data&&Date.now()-this._lastLoad<30000){this.renderMain();return}
+    if(!force&&this._data&&Date.now()-this._lastLoad<30000){if(!(this._view==='place'&&this._locationPickerOpen))this.renderMain();return}
     this._loading=true; this.renderMain();
     try{
       this._data=await this._hass.callWS({type:'cbbo_waste_collection/panel_data'});
@@ -170,7 +173,7 @@ main{width:min(1480px,100%);margin:auto;padding:22px 22px 0}.footer{width:min(14
 .location-picker-menu{
   overscroll-behavior:contain;
 }
-</style><div class="app"><header class="topbar"><div class="topbar-main"><button class="menu-btn" id="ha-menu-toggle" aria-label="Apri menu Home Assistant" title="Menu Home Assistant"><ha-icon icon="mdi:menu"></ha-icon></button><div class="app-identity"><div class="app-icon"><img src="/cbbo_waste_collection/icon.png" alt=""></div><div class="brand"><div class="brand-line"><div class="brand-title">CBBO Waste Collection</div><span class="version-badge">2.3.4</span></div><div class="brand-subtitle" id="brand-subtitle">Raccolta differenziata · Waste Center</div></div></div></div><div class="nav-scroller"><nav class="nav tabs">${this.tab('home','mdi:view-dashboard','Panoramica')}${this.tab('calendar','mdi:calendar-month','Calendario')}${this.tab('place','mdi:map-marker-outline','Comune')}${this.tab('diag','mdi:tools','Diagnostica')}<button class="nav-btn support-nav" id="support-nav" type="button"><ha-icon icon="mdi:coffee-outline"></ha-icon><span>Supporta il progetto</span></button></nav></div></header><main id="view-content"></main><div class="footer">CBBO Waste Collection · v2.3.4 · Idea Riccardo Cosi · Fabio Vittori</div></div>`;
+</style><div class="app"><header class="topbar"><div class="topbar-main"><button class="menu-btn" id="ha-menu-toggle" aria-label="Apri menu Home Assistant" title="Menu Home Assistant"><ha-icon icon="mdi:menu"></ha-icon></button><div class="app-identity"><div class="app-icon"><img src="/cbbo_waste_collection/icon.png" alt=""></div><div class="brand"><div class="brand-line"><div class="brand-title">CBBO Waste Collection</div><span class="version-badge">2.3.5</span></div><div class="brand-subtitle" id="brand-subtitle">Raccolta differenziata · Waste Center</div></div></div></div><div class="nav-scroller"><nav class="nav tabs">${this.tab('home','mdi:view-dashboard','Panoramica')}${this.tab('calendar','mdi:calendar-month','Calendario')}${this.tab('place','mdi:map-marker-outline','Comune')}${this.tab('diag','mdi:tools','Diagnostica')}<button class="nav-btn support-nav" id="support-nav" type="button"><ha-icon icon="mdi:coffee-outline"></ha-icon><span>Supporta il progetto</span></button></nav></div></header><main id="view-content"></main><div class="footer">CBBO Waste Collection · v2.3.5 · Idea Riccardo Cosi · Fabio Vittori</div></div>`;
     this._shellMounted=true;this.bindShell();this.renderMain();
   }
   bindShell(){
@@ -225,8 +228,8 @@ main{width:min(1480px,100%);margin:auto;padding:22px 22px 0}.footer{width:min(14
     <div class="control-deck">
       <section class="control-panel">
         <label>Profilo attivo</label>
-        <div class="location-picker" id="location-picker">
-          <button class="location-picker-trigger" id="location-picker-trigger" type="button" aria-expanded="false">
+        <div class="location-picker ${this._locationPickerOpen?'open':''}" id="location-picker">
+          <button class="location-picker-trigger" id="location-picker-trigger" type="button" aria-expanded="${this._locationPickerOpen?'true':'false'}">
             <span class="location-picker-icon"><ha-icon icon="mdi:map-marker-radius-outline"></ha-icon></span>
             <span class="location-picker-copy">
               <small>Comune / zona</small>
@@ -267,7 +270,8 @@ main{width:min(1480px,100%);margin:auto;padding:22px 22px 0}.footer{width:min(14
       ev.preventDefault();
       ev.stopPropagation();
       if(!picker)return;
-      const willOpen=!picker.classList.contains('open');
+      const willOpen=!this._locationPickerOpen;
+      this._locationPickerOpen=willOpen;
       picker.classList.toggle('open',willOpen);
       trigger.setAttribute('aria-expanded',willOpen?'true':'false');
     });
@@ -280,10 +284,12 @@ main{width:min(1480px,100%);margin:auto;padding:22px 22px 0}.footer{width:min(14
         ev.stopPropagation();
         const entryId=option.dataset.entryId;
         if(!entryId||entryId===this._selectedEntryId){
+          this._locationPickerOpen=false;
           picker?.classList.remove('open');
           trigger?.setAttribute('aria-expanded','false');
           return;
         }
+        this._locationPickerOpen=false;
         picker?.classList.remove('open');
         trigger?.setAttribute('aria-expanded','false');
         this._selectedEntryId=entryId;
@@ -294,4 +300,4 @@ main{width:min(1480px,100%);margin:auto;padding:22px 22px 0}.footer{width:min(14
 
   }
 }
-if(!customElements.get('cbbo-waste-collection-panel-v234')) customElements.define('cbbo-waste-collection-panel-v234',CBBOWasteCollectionPanel);
+if(!customElements.get('cbbo-waste-collection-panel-v235')) customElements.define('cbbo-waste-collection-panel-v235',CBBOWasteCollectionPanel);

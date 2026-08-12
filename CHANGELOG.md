@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.3.5
+
+- Corretto definitivamente il Location Picker nella sezione Comune.
+- Individuata la causa reale: gli aggiornamenti continui dello stato Home Assistant ricostruivano la vista mentre il menu era aperto.
+- Lo stato aperto/chiuso del picker è ora persistente nel componente.
+- Gli aggiornamenti ordinari di Home Assistant non ridisegnano più la sezione Comune mentre il picker è aperto.
+- Il menu resta aperto fino alla selezione di un profilo o a un secondo tap sul trigger.
+- Continuano a essere mostrati esclusivamente i profili CBBO già configurati dall'utente.
+- Nessuna modifica ai calendari, entity ID o Config Entry.
+
 ## 2.3.4
 
 - Corretto il Location Picker su iPhone/iOS.
