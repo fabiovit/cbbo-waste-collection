@@ -1,0 +1,49 @@
+name: Release consistency
+
+on:
+  push:
+    tags:
+      - "v*"
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  version:
+    name: Check tag and manifest version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check version consistency
+        shell: bash
+        run: |
+          if [[ "${GITHUB_EVENT_NAME}" == "release" ]]; then
+            TAG="${{ github.event.release.tag_name }}"
+          elif [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            TAG="${GITHUB_REF_NAME}"
+          else
+            TAG=""
+          fi
+
+          MANIFEST_VERSION="$(python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest = json.loads(Path('custom_components/cbbo_waste_collection/manifest.json').read_text())
+          print(manifest['version'])
+          PY
+          )"
+
+          echo "Manifest version: ${MANIFEST_VERSION}"
+          if [[ -n "${TAG}" ]]; then
+            EXPECTED="v${MANIFEST_VERSION}"
+            echo "Git tag/release: ${TAG}"
+            if [[ "${TAG}" != "${EXPECTED}" ]]; then
+              echo "::error::Tag ${TAG} does not match manifest version ${MANIFEST_VERSION} (expected ${EXPECTED})"
+              exit 1
+            fi
+          fi
