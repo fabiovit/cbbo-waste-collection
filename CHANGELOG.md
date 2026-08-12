@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.3.0
+
+- Aggiunti HACS Action e Hassfest con controlli su push, pull request, release e schedulazione giornaliera.
+- Aggiunto controllo automatico di coerenza tra tag GitHub e versione del `manifest.json`.
+- Aggiunta checklist di pubblicazione per ridurre errori di tag/release e rilevamento HACS.
+
+- Nuovo Waste Center con shell grafica e geometria derivate da Inverter Dashboard v1.1.4.
+- Testata sticky con hamburger mobile, icona, versione e sottotitolo.
+- Menu interno orizzontale touch-friendly: Panoramica, Calendario, Comune, Diagnostica e Supporta il progetto.
+- Panoramica completamente ridisegnata con hero “Stasera si espone”, prossimo ritiro, stato rapido e timeline.
+- Calendario con rail visivo e agenda dei prossimi passaggi.
+- Pagina Comune dedicata alla selezione del profilo e alle fonti CBBO.
+- Diagnostica semplificata e separata dai dati quotidiani.
+- Pagina Ko-fi dedicata, mantenendo Credits e disclaimer.
+- Nessuna modifica a calendari, entity ID o configurazioni esistenti.
+
 ## 2.2.0
 
 - Ridisegnata completamente la testata della dashboard CBBO in stile Home Assistant/PawBook.

@@ -1,286 +1,134 @@
-const CBBO_PANEL_VERSION = "2.2.0";
+const CBBO_PANEL_VERSION = "2.3.0";
 
-const STRINGS = {
-  it: {
-    title: "CBBO Waste Collection",
-    subtitle: "Raccolta differenziata",
-    select: "Comune / zona",
-    today: "Rifiuti oggi",
-    tomorrow: "Rifiuti domani",
-    next: "Prossimo ritiro",
-    days: "Giorni al prossimo ritiro",
-    tonight: "Esporre stasera",
-    tomorrowCollection: "Ritiro domani",
-    calendar: "Prossime raccolte",
-    source: "Sorgente dati",
-    updated: "Ultimo aggiornamento",
-    yes: "Sì",
-    no: "No",
-    none: "Nessun ritiro",
-    noConfig: "Nessun Comune CBBO configurato.",
-    noConfigHint: "Aggiungi CBBO Waste Collection da Impostazioni → Dispositivi e servizi.",
-    refresh: "Aggiorna",
-    refreshing: "Aggiornamento…",
-    support: "Supporta il progetto",
-    menu: "Apri menu Home Assistant",
-    openCbbo: "Apri CBBO",
-    diagnostic: "Informazioni",
-    status: "Stato",
-    online: "Dati online",
-    fallback: "Calendario locale 2026 attivo",
-    cache: "Dati in cache",
-    error: "Impossibile caricare i dati della dashboard.",
-    daysUnit: "giorni",
-  },
-  en: {
-    title: "CBBO Waste Collection",
-    subtitle: "Waste collection",
-    select: "Municipality / zone",
-    today: "Waste today",
-    tomorrow: "Waste tomorrow",
-    next: "Next collection",
-    days: "Days to next collection",
-    tonight: "Put out tonight",
-    tomorrowCollection: "Collection tomorrow",
-    calendar: "Upcoming collections",
-    source: "Data source",
-    updated: "Last update",
-    yes: "Yes",
-    no: "No",
-    none: "No collection",
-    noConfig: "No CBBO municipality configured.",
-    noConfigHint: "Add CBBO Waste Collection from Settings → Devices & services.",
-    refresh: "Refresh",
-    refreshing: "Refreshing…",
-    support: "Support the project",
-    menu: "Open Home Assistant menu",
-    openCbbo: "Open CBBO",
-    diagnostic: "Information",
-    status: "Status",
-    online: "Online data",
-    fallback: "Local 2026 calendar active",
-    cache: "Cached data",
-    error: "Unable to load dashboard data.",
-    daysUnit: "days",
-  },
-};
-
-const WASTE_ICONS = {
-  organic: "🌱",
-  paper: "📦",
-  plastic: "🟨",
-  glass_cans: "🫙",
-  residual: "🗑️",
-  sanitary: "🧷",
-  green: "🌿",
+const WASTE_META = {
+  organic:   { icon:"mdi:food-apple-outline", short:"Organico", cls:"organic" },
+  paper:     { icon:"mdi:package-variant-closed", short:"Carta", cls:"paper" },
+  plastic:   { icon:"mdi:bottle-soda-outline", short:"Plastica", cls:"plastic" },
+  glass_cans:{ icon:"mdi:glass-mug-variant", short:"Vetro", cls:"glass" },
+  residual:  { icon:"mdi:delete-outline", short:"Indifferenziato", cls:"residual" },
+  sanitary:  { icon:"mdi:medical-bag", short:"Tessili", cls:"sanitary" },
+  green:     { icon:"mdi:leaf", short:"Verde", cls:"green" },
 };
 
 class CBBOWasteCollectionPanel extends HTMLElement {
-  constructor() {
+  constructor(){
     super();
-    this.attachShadow({ mode: "open" });
-    this._hass = null;
-    this._data = null;
-    this._selectedEntryId = localStorage.getItem("cbbo-panel-entry") || null;
-    this._loading = false;
-    this._lastLoad = 0;
-    this._refreshTimer = null;
+    this.attachShadow({mode:'open'});
+    this._hass=null;
+    this._data=null;
+    this._loading=false;
+    this._lastLoad=0;
+    this._view=localStorage.getItem('cbbo-panel-view')||'home';
+    this._selectedEntryId=localStorage.getItem('cbbo-panel-entry')||null;
+    this._shellMounted=false;
+    this._refreshTimer=null;
   }
-
-  set hass(value) {
-    this._hass = value;
-    const now = Date.now();
-    if (!this._data || now - this._lastLoad > 30000) {
+  set hass(v){
+    this._hass=v;
+    if(!this._shellMounted) this.renderShell();
+    if(!this._data || Date.now()-this._lastLoad>30000){
       clearTimeout(this._refreshTimer);
-      this._refreshTimer = setTimeout(() => this._loadData(), 50);
-    }
+      this._refreshTimer=setTimeout(()=>this.loadData(),30);
+    }else this.renderMain();
   }
+  get hass(){return this._hass}
+  set narrow(v){this._narrow=v}
+  set route(v){this._route=v}
+  set panel(v){this._panel=v}
+  connectedCallback(){ if(!this._shellMounted) this.renderShell(); if(this._hass) this.loadData(); }
 
-  get hass() { return this._hass; }
-  set narrow(value) { this._narrow = value; }
-  set route(value) { this._route = value; }
-  set panel(value) { this._panel = value; }
-
-  connectedCallback() {
-    this._render();
-    if (this._hass) this._loadData();
+  async loadData(force=false){
+    if(!this._hass||this._loading) return;
+    if(!force&&this._data&&Date.now()-this._lastLoad<30000){this.renderMain();return}
+    this._loading=true; this.renderMain();
+    try{
+      this._data=await this._hass.callWS({type:'cbbo_waste_collection/panel_data'});
+      this._lastLoad=Date.now();
+      const entries=this._data?.entries||[];
+      if(!entries.some(x=>x.entry_id===this._selectedEntryId)) this._selectedEntryId=entries[0]?.entry_id||null;
+    }catch(err){ console.error('CBBO panel',err); this._data={entries:[],error:true}; }
+    finally{this._loading=false;this.renderMain();}
   }
-
-  _toggleHomeAssistantMenu() {
-    this.dispatchEvent(
-      new CustomEvent("hass-toggle-menu", {
-        bubbles: true,
-        composed: true,
-        detail: { open: true },
-      })
-    );
+  async refresh(){
+    if(!this._hass||this._loading)return;
+    this._loading=true;this.renderMain();
+    try{
+      await this._hass.callService('cbbo_waste_collection','refresh',{});
+      await new Promise(r=>setTimeout(r,900));
+      this._lastLoad=0;await this.loadData(true);
+    }catch(e){console.error(e);this._loading=false;this.renderMain()}
   }
+  entry(){const e=this._data?.entries||[];return e.find(x=>x.entry_id===this._selectedEntryId)||e[0]||null}
+  entryName(e=this.entry()){if(!e)return 'CBBO';return e.zone_name?`${e.municipality_name} · ${e.zone_name}`:e.municipality_name}
+  fmtDate(v,weekday=true){if(!v)return '—';const d=new Date(`${v}T12:00:00`);return new Intl.DateTimeFormat('it-IT',{weekday:weekday?'long':undefined,day:'numeric',month:'long'}).format(d)}
+  fmtStamp(v){if(!v)return '—';const d=new Date(v);return Number.isNaN(d.getTime())?v:new Intl.DateTimeFormat('it-IT',{dateStyle:'short',timeStyle:'short'}).format(d)}
+  text(c){return c?.labels?.length?c.labels.join(' + '):'Nessun ritiro'}
+  wasteItems(c){return (c?.waste_types||[]).map((t,i)=>{const m=WASTE_META[t]||{icon:'mdi:recycle',short:c?.labels?.[i]||t,cls:'other'};return `<span class="waste-token ${m.cls}"><ha-icon icon="${m.icon}"></ha-icon><b>${c?.labels?.[i]||m.short}</b></span>`}).join('')}
+  dotItems(c){return (c?.waste_types||[]).map(t=>{const m=WASTE_META[t]||{icon:'mdi:recycle',cls:'other'};return `<span class="waste-dot ${m.cls}"><ha-icon icon="${m.icon}"></ha-icon></span>`}).join('')||'<span class="waste-dot empty"><ha-icon icon="mdi:minus"></ha-icon></span>'}
+  tab(view,icon,label){return `<button class="nav-btn tab ${this._view===view?'active':''}" data-view="${view}" type="button"><ha-icon icon="${icon}"></ha-icon><span>${label}</span></button>`}
+  sourceLabel(e){return e?.source_status==='fallback'?'Calendario locale 2026':e?.source_status==='cache'?'Dati in cache':'Dati online'}
 
-  _lang() {
-    const lang = (this._hass?.language || navigator.language || "it").toLowerCase();
-    return lang.startsWith("it") ? "it" : "en";
+  renderShell(){
+    this.shadowRoot.innerHTML=`<style>
+:host{display:block;min-height:100vh;background:var(--primary-background-color);color:var(--primary-text-color);font-family:var(--paper-font-body1_-_font-family,Roboto,Arial,sans-serif);--cbbo:#68a82d;--cbbo-deep:#4d8720;--paper:#4f9ad5;--plastic:#eabf2d;--organic:#72b743;--glass:#49abc5;--residual:#6d7278;--sanitary:#8f7ad6;--green:#4ba85c;--orange:#df7b34}*{box-sizing:border-box}button,select{font:inherit}.app{width:100%;min-height:100vh;padding:0 0 56px}.topbar{--casa-accent:var(--cbbo);position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--primary-background-color) 96%,transparent);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid color-mix(in srgb,var(--divider-color) 78%,transparent);box-shadow:0 10px 28px color-mix(in srgb,#000 4%,transparent)}.topbar-main{max-width:1480px;margin:auto;min-height:72px;padding:15px 18px 9px;display:flex;align-items:center;gap:12px}.menu-btn{display:none;border:0;background:transparent;color:var(--primary-text-color);width:42px;height:42px;border-radius:13px;align-items:center;justify-content:center;cursor:pointer;flex:none}.menu-btn ha-icon{--mdc-icon-size:27px}.menu-btn:active{background:var(--secondary-background-color)}.app-identity{display:flex;align-items:center;gap:11px;min-width:0}.app-icon{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;flex:none;border:1px solid color-mix(in srgb,var(--cbbo) 30%,var(--divider-color));background:color-mix(in srgb,var(--cbbo) 9%,var(--card-background-color));overflow:hidden}.app-icon img{width:34px;height:34px;object-fit:contain}.brand{min-width:0}.brand-line{display:flex;align-items:center;gap:8px;min-width:0}.brand-title{font-size:21px;line-height:1.05;font-weight:850;letter-spacing:-.025em}.version-badge{display:inline-flex;align-items:center;justify-content:center;padding:3px 7px;border-radius:999px;border:1px solid color-mix(in srgb,var(--cbbo) 30%,var(--divider-color));background:color-mix(in srgb,var(--cbbo) 9%,var(--card-background-color));color:var(--cbbo-deep);font-size:9px;font-weight:900;line-height:1;white-space:nowrap}.brand-subtitle{font-size:11px;color:var(--secondary-text-color);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.nav-scroller{max-width:1480px;margin:auto;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-x;padding:0 18px}.nav-scroller::-webkit-scrollbar{display:none}.nav{display:flex;align-items:stretch;gap:22px;width:max-content;min-width:max-content}.nav-btn{position:relative;border:0;background:transparent;color:var(--secondary-text-color);padding:10px 1px 12px;min-height:44px;display:flex;align-items:center;gap:7px;cursor:pointer;white-space:nowrap;font-size:12px;font-weight:720;transition:color .16s ease,transform .12s ease;-webkit-tap-highlight-color:transparent;user-select:none}.nav-btn::after{content:"";position:absolute;left:50%;right:50%;bottom:0;height:3px;border-radius:3px 3px 0 0;background:var(--cbbo);opacity:0;transition:left .18s ease,right .18s ease,opacity .18s ease}.nav-btn ha-icon{--mdc-icon-size:19px;opacity:.78}.nav-btn:active{transform:translateY(1px)}.nav-btn.active{color:var(--cbbo-deep);font-weight:850}.nav-btn.active ha-icon{opacity:1;color:var(--cbbo)}.nav-btn.active::after{left:0;right:0;opacity:1}.support-nav{color:color-mix(in srgb,var(--cbbo) 85%,var(--primary-text-color))}
+main{width:min(1480px,100%);margin:auto;padding:22px 22px 0}.footer{width:min(1480px,100%);margin:34px auto 0;padding:0 22px;text-align:center;color:var(--secondary-text-color);font-size:10px}.eyebrow{font-size:10px;font-weight:850;letter-spacing:.18em;text-transform:uppercase;color:var(--secondary-text-color);margin-bottom:8px}.view-head{margin:4px 0 24px}.view-head h1{margin:0;font-size:34px;line-height:1.04;letter-spacing:-.04em}.view-head p{margin:7px 0 0;color:var(--secondary-text-color);max-width:760px}
+.hero{position:relative;overflow:hidden;border-radius:32px;border:1px solid var(--divider-color);background:linear-gradient(135deg,color-mix(in srgb,var(--cbbo) 11%,var(--card-background-color)),var(--card-background-color) 44%,color-mix(in srgb,var(--orange) 5%,var(--card-background-color)));min-height:340px;padding:36px;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(310px,.75fr);gap:32px;align-items:center}.hero:before{content:"";position:absolute;width:430px;height:430px;border-radius:50%;right:-180px;top:-220px;border:72px solid color-mix(in srgb,var(--cbbo) 8%,transparent)}.hero-copy,.hero-side{position:relative;z-index:1}.hero-kicker{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border-radius:999px;background:color-mix(in srgb,var(--cbbo) 10%,var(--card-background-color));border:1px solid color-mix(in srgb,var(--cbbo) 25%,var(--divider-color));color:var(--cbbo-deep);font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}.hero-copy h1{font-size:52px;line-height:.98;letter-spacing:-.055em;margin:18px 0 10px;max-width:780px}.hero-copy p{font-size:15px;color:var(--secondary-text-color);margin:0;max-width:680px}.waste-tokens{display:flex;flex-wrap:wrap;gap:9px;margin-top:24px}.waste-token{display:inline-flex;align-items:center;gap:7px;padding:9px 12px;border-radius:14px;border:1px solid var(--divider-color);background:color-mix(in srgb,var(--card-background-color) 92%,transparent);font-size:12px}.waste-token ha-icon{--mdc-icon-size:20px}.waste-token.organic{color:var(--organic)}.waste-token.paper{color:var(--paper)}.waste-token.plastic{color:#ad8700}.waste-token.glass{color:var(--glass)}.waste-token.residual{color:var(--residual)}.waste-token.sanitary{color:var(--sanitary)}.waste-token.green{color:var(--green)}.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:25px}.action-btn{border:1px solid var(--divider-color);background:var(--card-background-color);color:var(--primary-text-color);border-radius:15px;padding:12px 15px;display:inline-flex;gap:8px;align-items:center;cursor:pointer;text-decoration:none;font-size:12px;font-weight:800}.action-btn.primary{background:var(--cbbo-deep);color:white;border-color:transparent}.action-btn ha-icon{--mdc-icon-size:19px}.hero-side{display:grid;gap:12px}.next-orbit{border-radius:28px;background:color-mix(in srgb,var(--primary-background-color) 45%,transparent);border:1px solid color-mix(in srgb,var(--divider-color) 85%,transparent);padding:25px;backdrop-filter:blur(8px)}.next-orbit span{display:block;font-size:9px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:var(--secondary-text-color)}.next-orbit strong{display:block;font-size:27px;line-height:1.05;margin-top:10px;letter-spacing:-.025em}.next-orbit small{display:block;margin-top:7px;color:var(--secondary-text-color);font-size:11px}.day-count{display:flex;align-items:end;gap:10px;margin-top:18px}.day-count b{font-size:58px;line-height:.8;color:var(--cbbo-deep);letter-spacing:-.06em}.day-count em{font-style:normal;color:var(--secondary-text-color);font-size:12px}.status-strip{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--divider-color);border-radius:25px;overflow:hidden;margin-top:14px;background:var(--card-background-color)}.status-item{padding:20px 22px;border-right:1px solid var(--divider-color)}.status-item:last-child{border-right:0}.status-item span{display:block;font-size:9px;font-weight:850;letter-spacing:.12em;text-transform:uppercase;color:var(--secondary-text-color)}.status-item strong{display:block;font-size:18px;margin-top:8px}.status-item small{display:block;color:var(--secondary-text-color);font-size:10px;margin-top:4px}.status-item.good strong{color:var(--cbbo-deep)}
+.schedule-stage{margin-top:28px;border-radius:30px;border:1px solid var(--divider-color);background:var(--card-background-color);overflow:hidden}.stage-head{padding:25px 28px 19px;display:flex;align-items:end;justify-content:space-between;gap:18px}.stage-head h2{margin:0;font-size:24px;letter-spacing:-.03em}.stage-head p{margin:5px 0 0;color:var(--secondary-text-color);font-size:12px}.timeline{display:grid}.timeline-row{display:grid;grid-template-columns:170px 1fr auto;gap:20px;align-items:center;padding:17px 28px;border-top:1px solid var(--divider-color)}.timeline-date{font-size:12px;font-weight:800;text-transform:capitalize}.timeline-date small{display:block;margin-top:4px;color:var(--secondary-text-color);font-weight:500}.timeline-main strong{display:block;font-size:15px}.timeline-dots{display:flex;gap:6px}.waste-dot{width:35px;height:35px;border-radius:12px;display:grid;place-items:center;border:1px solid var(--divider-color);background:var(--secondary-background-color)}.waste-dot ha-icon{--mdc-icon-size:19px}.waste-dot.organic{color:var(--organic)}.waste-dot.paper{color:var(--paper)}.waste-dot.plastic{color:#ad8700}.waste-dot.glass{color:var(--glass)}.waste-dot.residual{color:var(--residual)}.waste-dot.sanitary{color:var(--sanitary)}.waste-dot.green{color:var(--green)}
+.calendar-hero{border-radius:30px;border:1px solid var(--divider-color);background:var(--card-background-color);padding:28px}.month-rail{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:22px}.rail-day{min-height:128px;border-radius:18px;background:var(--secondary-background-color);border:1px solid color-mix(in srgb,var(--divider-color) 75%,transparent);padding:14px}.rail-day.today{border-color:color-mix(in srgb,var(--cbbo) 55%,var(--divider-color));background:color-mix(in srgb,var(--cbbo) 7%,var(--card-background-color))}.rail-day span{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--secondary-text-color);font-weight:800}.rail-day b{display:block;font-size:21px;margin-top:4px}.rail-dots{display:flex;gap:4px;flex-wrap:wrap;margin-top:16px}.rail-dots .waste-dot{width:28px;height:28px;border-radius:9px}.rail-dots .waste-dot ha-icon{--mdc-icon-size:16px}
+.control-deck{display:grid;grid-template-columns:1.2fr .8fr;gap:14px}.control-panel,.info-panel,.support-stage{border-radius:28px;border:1px solid var(--divider-color);background:var(--card-background-color);padding:28px}.control-panel label{display:block;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--secondary-text-color);font-weight:850;margin-bottom:9px}.select{width:100%;min-height:48px;border:1px solid var(--divider-color);border-radius:15px;background:var(--secondary-background-color);color:var(--primary-text-color);padding:0 14px}.link-stack{display:grid;gap:9px;margin-top:20px}.wide-link{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 16px;border:1px solid var(--divider-color);border-radius:16px;text-decoration:none;color:var(--primary-text-color);background:var(--secondary-background-color);font-size:12px;font-weight:800}.wide-link ha-icon{--mdc-icon-size:20px;color:var(--cbbo)}.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--divider-color);border:1px solid var(--divider-color);border-radius:23px;overflow:hidden}.info-cell{background:var(--card-background-color);padding:22px}.info-cell span{display:block;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--secondary-text-color);font-weight:850}.info-cell strong{display:block;font-size:17px;margin-top:8px;word-break:break-word}.info-cell small{display:block;color:var(--secondary-text-color);margin-top:5px;font-size:10px}.support-stage{min-height:340px;display:grid;grid-template-columns:1fr 250px;align-items:center;gap:28px;background:linear-gradient(145deg,color-mix(in srgb,var(--cbbo) 9%,var(--card-background-color)),var(--card-background-color))}.support-stage h1{font-size:44px;letter-spacing:-.045em;margin:0}.support-stage p{color:var(--secondary-text-color);max-width:650px;line-height:1.6}.coffee-orb{width:210px;height:210px;border-radius:50%;margin:auto;display:grid;place-items:center;background:color-mix(in srgb,var(--cbbo) 10%,var(--secondary-background-color));border:1px solid color-mix(in srgb,var(--cbbo) 30%,var(--divider-color));font-size:78px}.credits{margin-top:20px;color:var(--secondary-text-color);font-size:11px;line-height:1.8}
+.empty-state{padding:80px 24px;text-align:center}.empty-state ha-icon{--mdc-icon-size:52px;color:var(--cbbo)}.empty-state h2{font-size:28px}.empty-state p{color:var(--secondary-text-color)}
+@media(max-width:980px){.hero{grid-template-columns:1fr}.status-strip{grid-template-columns:1fr 1fr}.status-item:nth-child(2){border-right:0}.status-item:nth-child(-n+2){border-bottom:1px solid var(--divider-color)}.month-rail{grid-template-columns:repeat(4,1fr)}.control-deck{grid-template-columns:1fr}.support-stage{grid-template-columns:1fr}}
+@media(max-width:620px){.app{padding:0 0 42px}.menu-btn{display:flex}.topbar-main{min-height:62px;padding:9px 10px 7px;gap:7px}.app-identity{gap:8px}.app-icon{width:39px;height:39px;border-radius:12px}.app-icon img{width:30px;height:30px}.brand-title{font-size:19px}.brand-subtitle{font-size:10px;margin-top:3px}.version-badge{font-size:8px;padding:3px 6px}.nav-scroller{padding:0 10px}.nav{gap:18px}.nav-btn{padding:9px 1px 11px;font-size:12px;min-height:42px}.nav-btn ha-icon{--mdc-icon-size:18px}main{padding:12px 10px 0}.footer{padding:0 10px}.hero{padding:23px 19px;border-radius:26px;min-height:auto}.hero-copy h1{font-size:39px}.hero-side{gap:9px}.next-orbit{padding:21px}.next-orbit strong{font-size:24px}.status-strip{grid-template-columns:1fr 1fr;border-radius:22px}.status-item{padding:17px 16px}.status-item strong{font-size:15px}.stage-head{padding:21px 19px 15px}.timeline-row{grid-template-columns:1fr auto;padding:15px 19px;gap:12px}.timeline-main{grid-column:1/-1;grid-row:2}.month-rail{grid-template-columns:repeat(2,1fr);gap:7px}.rail-day{min-height:115px}.control-panel,.info-panel,.support-stage,.calendar-hero{padding:21px 18px;border-radius:24px}.info-grid{grid-template-columns:1fr}.support-stage h1{font-size:36px}.coffee-orb{width:150px;height:150px;font-size:58px}.view-head h1{font-size:29px}}
+</style><div class="app"><header class="topbar"><div class="topbar-main"><button class="menu-btn" id="ha-menu-toggle" aria-label="Apri menu Home Assistant" title="Menu Home Assistant"><ha-icon icon="mdi:menu"></ha-icon></button><div class="app-identity"><div class="app-icon"><img src="/cbbo_waste_collection/icon.png" alt=""></div><div class="brand"><div class="brand-line"><div class="brand-title">CBBO Waste Collection</div><span class="version-badge">2.3.0</span></div><div class="brand-subtitle" id="brand-subtitle">Raccolta differenziata · Waste Center</div></div></div></div><div class="nav-scroller"><nav class="nav tabs">${this.tab('home','mdi:view-dashboard','Panoramica')}${this.tab('calendar','mdi:calendar-month','Calendario')}${this.tab('place','mdi:map-marker-outline','Comune')}${this.tab('diag','mdi:tools','Diagnostica')}<button class="nav-btn support-nav" id="support-nav" type="button"><ha-icon icon="mdi:coffee-outline"></ha-icon><span>Supporta il progetto</span></button></nav></div></header><main id="view-content"></main><div class="footer">CBBO Waste Collection · v2.3.0 · Idea Riccardo Cosi · Fabio Vittori</div></div>`;
+    this._shellMounted=true;this.bindShell();this.renderMain();
   }
-
-  _t(key) { return STRINGS[this._lang()][key] || key; }
-
-  async _loadData(force = false) {
-    if (!this._hass || this._loading) return;
-    if (!force && this._data && Date.now() - this._lastLoad < 30000) return;
-    this._loading = true;
-    this._render();
-    try {
-      this._data = await this._hass.callWS({ type: "cbbo_waste_collection/panel_data" });
-      this._lastLoad = Date.now();
-      const entries = this._data?.entries || [];
-      if (!entries.find((entry) => entry.entry_id === this._selectedEntryId)) {
-        this._selectedEntryId = entries[0]?.entry_id || null;
-      }
-    } catch (err) {
-      console.error("CBBO panel:", err);
-      this._data = { entries: [], error: true };
-    } finally {
-      this._loading = false;
-      this._render();
-    }
-  }
-
-  async _requestRefresh() {
-    if (!this._hass || this._loading) return;
-    this._loading = true;
-    this._render();
-    try {
-      await this._hass.callService("cbbo_waste_collection", "refresh", {});
-      await new Promise((resolve) => setTimeout(resolve, 1200));
-      this._lastLoad = 0;
-      await this._loadData(true);
-    } catch (err) {
-      console.error("CBBO refresh:", err);
-      this._loading = false;
-      this._render();
-    }
-  }
-
-  _entry() {
-    const entries = this._data?.entries || [];
-    return entries.find((entry) => entry.entry_id === this._selectedEntryId) || entries[0];
-  }
-
-  _entryLabel(entry) {
-    return entry.zone_name ? `${entry.municipality_name} · ${entry.zone_name}` : entry.municipality_name;
-  }
-
-  _collectionText(collection) {
-    return collection?.labels?.length ? collection.labels.join(" + ") : this._t("none");
-  }
-
-  _collectionIcons(collection) {
-    if (!collection?.waste_types?.length) return "—";
-    return collection.waste_types.map((type) => WASTE_ICONS[type] || "♻️").join(" ");
-  }
-
-  _formatDate(value, includeWeekday = true) {
-    if (!value) return "—";
-    const date = new Date(`${value}T12:00:00`);
-    return new Intl.DateTimeFormat(this._lang() === "it" ? "it-IT" : "en-GB", {
-      weekday: includeWeekday ? "long" : undefined,
-      day: "numeric",
-      month: "long",
-    }).format(date);
-  }
-
-  _formatTimestamp(value) {
-    if (!value) return "—";
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return value;
-    return new Intl.DateTimeFormat(this._lang() === "it" ? "it-IT" : "en-GB", {
-      dateStyle: "short",
-      timeStyle: "short",
-    }).format(date);
-  }
-
-  _card(icon, title, value, detail = "", tone = "") {
-    return `<article class="card ${tone}">
-      <div class="card-head"><span class="card-icon">${icon}</span><span>${title}</span></div>
-      <div class="card-value">${value}</div>
-      ${detail ? `<div class="card-detail">${detail}</div>` : ""}
-    </article>`;
-  }
-
-  _render() {
-    if (!this.shadowRoot) return;
-    const entry = this._entry();
-    const entries = this._data?.entries || [];
-
-    const styles = `<style>
-      :host{display:block;min-height:100%;color:var(--primary-text-color);background:var(--primary-background-color);font-family:var(--paper-font-body1_-_font-family,system-ui,sans-serif)}
-      *{box-sizing:border-box}.page{max-width:1120px;margin:0 auto;padding:18px 20px 40px}.hero{display:flex;gap:14px;align-items:center;justify-content:space-between;margin-bottom:16px;min-height:76px}.hero-main{display:flex;align-items:center;gap:13px;min-width:0;flex:1}.logo{width:58px;height:58px;border-radius:17px;display:grid;place-items:center;background:var(--card-background-color);border:1px solid var(--divider-color);box-shadow:0 4px 14px rgba(0,0,0,.08);flex:0 0 auto;overflow:hidden}.logo img{width:44px;height:44px;object-fit:contain}.brand-copy{min-width:0}.brand-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap}h1{font-size:26px;line-height:1.05;margin:0;font-weight:700;letter-spacing:-.02em}.version-badge{font-size:12px;font-weight:700;color:#1598c5;background:rgba(3,169,244,.12);border-radius:999px;padding:4px 9px;white-space:nowrap}.subtitle{color:var(--secondary-text-color);font-size:14px;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.actions{display:flex;gap:8px;flex-wrap:nowrap;justify-content:flex-end;align-items:center}
-      button,select,.link-button{border:1px solid var(--divider-color);background:var(--card-background-color);color:var(--primary-text-color);border-radius:12px;min-height:42px;padding:0 14px;font:inherit;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:7px}button:hover,.link-button:hover{background:var(--secondary-background-color)}button.primary{border-color:#388e3c;background:#388e3c;color:white}.menu-button{display:none;width:44px;height:52px;min-width:44px;border:0;border-radius:12px;background:transparent;color:var(--primary-text-color);align-items:center;justify-content:center;padding:0;box-shadow:none}.menu-button ha-icon{--mdc-icon-size:31px}.menu-button:hover{background:var(--secondary-background-color)}.support-icon{width:58px;height:58px;min-width:58px;padding:0;justify-content:center;border-radius:17px;font-size:24px}button:disabled{opacity:.65;cursor:wait}.controlbar{display:flex;gap:10px;align-items:end;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap}.selector-wrap{display:flex;flex-direction:column;align-items:stretch;gap:6px;margin:0;color:var(--secondary-text-color);min-width:260px;flex:1}.selector-wrap label{font-size:13px;font-weight:600}.selector-wrap select{width:100%;min-width:0}.utility-actions{display:flex;gap:8px;align-items:center}
-      .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:18px}.card,.section{background:var(--card-background-color);border:1px solid rgba(127,127,127,.18);border-radius:20px;box-shadow:0 5px 18px rgba(0,0,0,.055)}.card{padding:18px;min-height:138px}.card-head{display:flex;align-items:center;gap:9px;color:var(--secondary-text-color);font-weight:600;margin-bottom:14px}.card-icon{font-size:22px}.card-value{font-size:22px;font-weight:700;line-height:1.25}.card-detail{margin-top:8px;color:var(--secondary-text-color);font-size:13px}.positive .card-value{color:var(--success-color,#43a047)}
-      .section{padding:20px;margin-bottom:18px}.section h2{font-size:18px;margin:0 0 14px}.upcoming{display:grid;gap:8px}.row{display:grid;grid-template-columns:160px 1fr auto;gap:12px;align-items:center;padding:11px 12px;border-radius:11px;background:var(--secondary-background-color)}.row-date{font-weight:600;text-transform:capitalize}.row-icons{font-size:20px;letter-spacing:2px}.meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;color:var(--secondary-text-color);font-size:13px}.meta strong{display:block;color:var(--primary-text-color);margin-top:4px;word-break:break-word}.empty{padding:64px 24px;text-align:center;color:var(--secondary-text-color)}.empty-icon{font-size:58px;margin-bottom:14px}.empty h2{color:var(--primary-text-color);margin-bottom:8px}.footer{text-align:center;color:var(--secondary-text-color);font-size:12px;padding-top:8px}.error{color:var(--error-color,#db4437)}
-      @media(max-width:720px){.page{padding:12px 14px 28px}.menu-button{display:inline-flex}.hero{align-items:center;flex-direction:row;gap:8px;margin-bottom:14px;min-height:78px}.hero-main{gap:10px}.logo{width:56px;height:56px;min-width:56px;border-radius:16px}.logo img{width:42px;height:42px}h1{font-size:24px}.subtitle{font-size:13px;margin-top:4px}.version-badge{font-size:11px;padding:3px 7px}.actions{width:auto;flex:0 0 auto}.actions .desktop-action{display:none}.support-icon{display:inline-flex;width:56px;height:56px;min-width:56px}.controlbar{display:block;margin-bottom:16px}.selector-wrap{width:100%;min-width:0;margin-bottom:10px}.utility-actions{display:flex;width:100%;gap:8px}.utility-actions button,.utility-actions .link-button{flex:1;justify-content:center}.grid{grid-template-columns:1fr}.row{grid-template-columns:1fr auto}.row-value{grid-column:1/-1}.meta{grid-template-columns:1fr}}
-    </style>`;
-
-    if (!this._data) {
-      this.shadowRoot.innerHTML = `${styles}<div class="page"><div class="empty"><div class="empty-icon">♻️</div><h2>${this._t("title")}</h2><p>${this._loading ? this._t("refreshing") : "…"}</p></div></div>`;
-      return;
-    }
-    if (this._data.error) {
-      this.shadowRoot.innerHTML = `${styles}<div class="page"><div class="empty"><div class="empty-icon">⚠️</div><h2>${this._t("error")}</h2><button id="retry">${this._t("refresh")}</button></div></div>`;
-      this.shadowRoot.querySelector("#retry")?.addEventListener("click", () => this._loadData(true));
-      return;
-    }
-    if (!entry) {
-      this.shadowRoot.innerHTML = `${styles}<div class="page"><div class="empty"><div class="empty-icon">♻️</div><h2>${this._t("noConfig")}</h2><p>${this._t("noConfigHint")}</p></div></div>`;
-      return;
-    }
-
-    const selector = entries.length > 1 ? `<div class="selector-wrap"><label for="entry-select">${this._t("select")}</label><select id="entry-select">${entries.map((item) => `<option value="${item.entry_id}" ${item.entry_id === entry.entry_id ? "selected" : ""}>${this._entryLabel(item)}</option>`).join("")}</select></div>` : "";
-    const upcoming = (entry.upcoming || []).slice(0, 8).map((item) => `<div class="row"><div class="row-date">${this._formatDate(item.date)}</div><div class="row-value">${this._collectionText(item)}</div><div class="row-icons">${this._collectionIcons(item)}</div></div>`).join("");
-
-    this.shadowRoot.innerHTML = `${styles}<div class="page">
-      <header class="hero">
-        <div class="hero-main">
-          <button id="ha-menu" class="menu-button" title="${this._t("menu")}" aria-label="${this._t("menu")}"><ha-icon icon="mdi:menu"></ha-icon></button>
-          <div class="logo"><img src="/cbbo_waste_collection/icon.png" alt=""></div>
-          <div class="brand-copy">
-            <div class="brand-line"><h1>${this._t("title")}</h1><span class="version-badge">${this._data.version || CBBO_PANEL_VERSION}</span></div>
-            <div class="subtitle">${this._entryLabel(entry)} · ${this._t("subtitle")}</div>
-          </div>
-        </div>
-        <div class="actions">
-          <a class="link-button support-icon" href="${this._data.ko_fi}" target="_blank" rel="noopener" title="${this._t("support")}" aria-label="${this._t("support")}">☕</a>
-        </div>
-      </header>
-      <div class="controlbar">
-        ${selector}
-        <div class="utility-actions">
-          ${entry.source_url ? `<a class="link-button desktop-action" href="${entry.source_url}" target="_blank" rel="noopener">🌐 ${this._t("openCbbo")}</a>` : ""}
-          <button id="refresh" class="primary" ${this._loading ? "disabled" : ""}>↻ ${this._loading ? this._t("refreshing") : this._t("refresh")}</button>
-        </div>
-      </div>
-      <section class="grid">
-        ${this._card(this._collectionIcons(entry.today),this._t("today"),this._collectionText(entry.today))}
-        ${this._card(this._collectionIcons(entry.tomorrow),this._t("tomorrow"),this._collectionText(entry.tomorrow))}
-        ${this._card("🚛",this._t("next"),this._collectionText(entry.next),entry.next?this._formatDate(entry.next.date):"")}
-        ${this._card("⏱️",this._t("days"),entry.days_to_next??"—",entry.days_to_next!=null?this._t("daysUnit"):"")}
-        ${this._card("🌙",this._t("tonight"),entry.put_out_tonight?this._t("yes"):this._t("no"),entry.put_out_tonight?this._collectionText(entry.tomorrow):"",entry.put_out_tonight?"positive":"")}
-        ${this._card("🚚",this._t("tomorrowCollection"),entry.collection_tomorrow?this._t("yes"):this._t("no"),"",entry.collection_tomorrow?"positive":"")}
-      </section>
-      <section class="section"><h2>📆 ${this._t("calendar")}</h2><div class="upcoming">${upcoming||`<div>${this._t("none")}</div>`}</div></section>
-      <section class="section"><h2>ℹ️ ${this._t("diagnostic")}</h2><div class="meta"><div>${this._t("source")}<strong>${entry.data_source||"—"}</strong></div><div>${this._t("updated")}<strong>${this._formatTimestamp(entry.last_update)}</strong></div><div>${this._t("status")}<strong>${this._t(entry.source_status||"online")}</strong></div><div>Version<strong>${this._data.version||CBBO_PANEL_VERSION}</strong></div>${entry.last_error && entry.source_status === "online" ? `<div class="error">Error<strong>${entry.last_error}</strong></div>` : ""}</div></section>
-      <div class="footer">CBBO Waste Collection · Riccardo Cosi / Fabio Vittori · v${this._data.version||CBBO_PANEL_VERSION}</div>
-    </div>`;
-
-    this.shadowRoot.querySelector("#ha-menu")?.addEventListener("click", () => this._toggleHomeAssistantMenu());
-    this.shadowRoot.querySelector("#refresh")?.addEventListener("click", () => this._requestRefresh());
-    this.shadowRoot.querySelector("#entry-select")?.addEventListener("change", (event) => {
-      this._selectedEntryId = event.target.value;
-      localStorage.setItem("cbbo-panel-entry", this._selectedEntryId);
-      this._render();
+  bindShell(){
+    this.shadowRoot.getElementById('ha-menu-toggle')?.addEventListener('click',()=>{this.dispatchEvent(new Event('hass-toggle-menu',{bubbles:true,composed:true}));window.dispatchEvent(new Event('hass-toggle-menu',{bubbles:true,composed:true}))});
+    this.shadowRoot.querySelectorAll('.tabs .tab[data-view]').forEach(el=>{
+      let sx=0,sy=0,moved=false,touchHandled=false;
+      el.addEventListener('touchstart',ev=>{if(ev.touches?.length!==1)return;sx=ev.touches[0].clientX;sy=ev.touches[0].clientY;moved=false;touchHandled=false},{passive:true});
+      el.addEventListener('touchmove',ev=>{if(ev.touches?.length!==1)return;if(Math.abs(ev.touches[0].clientX-sx)>10||Math.abs(ev.touches[0].clientY-sy)>10)moved=true},{passive:true});
+      el.addEventListener('touchend',ev=>{if(moved)return;touchHandled=true;ev.preventDefault();this.navigate(el.dataset.view);setTimeout(()=>touchHandled=false,350)},{passive:false});
+      el.addEventListener('click',ev=>{if(touchHandled){ev.preventDefault();ev.stopPropagation();return}this.navigate(el.dataset.view)});
     });
+    this.shadowRoot.getElementById('support-nav')?.addEventListener('click',()=>this.navigate('support'));
+  }
+  navigate(v){if(!v||v===this._view)return;this._view=v;localStorage.setItem('cbbo-panel-view',v);this.updateTabs();this.renderMain()}
+  updateTabs(){this.shadowRoot.querySelectorAll('.tabs .tab[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===this._view))}
+  renderMain(){
+    if(!this._shellMounted)return;
+    const main=this.shadowRoot.getElementById('view-content');if(!main)return;
+    const e=this.entry();
+    const subtitle=this.shadowRoot.getElementById('brand-subtitle');if(subtitle)subtitle.textContent=e?`${this.entryName(e)} · Waste Center`:'Raccolta differenziata · Waste Center';
+    if(!this._data){main.innerHTML=`<div class="empty-state"><ha-icon icon="mdi:recycle"></ha-icon><h2>CBBO Waste Collection</h2><p>${this._loading?'Aggiornamento in corso…':'Caricamento…'}</p></div>`;return}
+    if(this._data.error){main.innerHTML=`<div class="empty-state"><ha-icon icon="mdi:alert-circle-outline"></ha-icon><h2>Impossibile caricare i dati</h2><p>Riprova tra qualche secondo.</p><button class="action-btn primary" id="retry">Riprova</button></div>`;main.querySelector('#retry')?.addEventListener('click',()=>this.loadData(true));return}
+    if(!e){main.innerHTML=`<div class="empty-state"><ha-icon icon="mdi:recycle"></ha-icon><h2>Nessun Comune configurato</h2><p>Aggiungi CBBO Waste Collection da Impostazioni → Dispositivi e servizi.</p></div>`;return}
+    main.innerHTML=this.body(e);this.updateTabs();this.bindMain();
+  }
+  body(e){if(this._view==='calendar')return this.calendarView(e);if(this._view==='place')return this.placeView(e);if(this._view==='diag')return this.diagView(e);if(this._view==='support')return this.supportView(e);return this.homeView(e)}
+  homeView(e){
+    const expose=e.put_out_tonight;const focus=expose?e.tomorrow:e.today;
+    const title=expose?'Stasera si espone':'Oggi non devi esporre nulla';
+    const desc=expose?`Per la raccolta di domani prepara: ${this.text(e.tomorrow)}.`:'Nessun ritiro previsto domani. Puoi controllare il prossimo passaggio qui sotto.';
+    return `<div class="view-head"><div class="eyebrow">${this.entryName(e)}</div><h1>La differenziata, senza pensarci.</h1><p>Una vista rapida su cosa esporre, cosa viene raccolto e quando passa il prossimo servizio.</p></div><section class="hero"><div class="hero-copy"><span class="hero-kicker"><ha-icon icon="${expose?'mdi:weather-night':'mdi:check-circle-outline'}"></ha-icon>${expose?'Promemoria esposizione':'Tutto tranquillo'}</span><h1>${title}</h1><p>${desc}</p><div class="waste-tokens">${this.wasteItems(focus)}</div><div class="hero-actions"><button class="action-btn primary" id="refresh-main"><ha-icon icon="mdi:refresh"></ha-icon>${this._loading?'Aggiornamento…':'Aggiorna dati'}</button><button class="action-btn" data-view="calendar"><ha-icon icon="mdi:calendar-month"></ha-icon>Apri calendario</button></div></div><div class="hero-side"><div class="next-orbit"><span>Prossimo ritiro</span><strong>${this.text(e.next)}</strong><small>${this.fmtDate(e.next?.date)}</small><div class="day-count"><b>${e.days_to_next??'—'}</b><em>${e.days_to_next===1?'giorno':'giorni'} al passaggio</em></div></div></div></section><div class="status-strip"><div class="status-item"><span>Rifiuti oggi</span><strong>${this.text(e.today)}</strong><small>${this.dotItems(e.today)}</small></div><div class="status-item"><span>Rifiuti domani</span><strong>${this.text(e.tomorrow)}</strong><small>${this.dotItems(e.tomorrow)}</small></div><div class="status-item ${expose?'good':''}"><span>Esporre stasera</span><strong>${expose?'Sì':'No'}</strong><small>${expose?'Prepara i contenitori':'Nessuna esposizione'}</small></div><div class="status-item"><span>Sorgente</span><strong>${this.sourceLabel(e)}</strong><small>${this.fmtStamp(e.last_update)}</small></div></div>${this.timelineBlock(e,'Prossime raccolte',6)}`
+  }
+  timelineBlock(e,title,limit=10){const rows=(e.upcoming||[]).slice(0,limit).map((c,i)=>`<div class="timeline-row"><div class="timeline-date">${this.fmtDate(c.date)}<small>${i===0?'prossimo passaggio':''}</small></div><div class="timeline-main"><strong>${this.text(c)}</strong></div><div class="timeline-dots">${this.dotItems(c)}</div></div>`).join('');return `<section class="schedule-stage"><div class="stage-head"><div><div class="eyebrow">Agenda</div><h2>${title}</h2><p>I prossimi passaggi previsti dal calendario ${this.entryName(e)}.</p></div></div><div class="timeline">${rows||'<div class="timeline-row"><div class="timeline-main"><strong>Nessun evento disponibile</strong></div></div>'}</div></section>`}
+  calendarView(e){
+    const upcoming=(e.upcoming||[]).slice(0,7);const cards=upcoming.map((c,i)=>{const d=new Date(`${c.date}T12:00:00`);return `<div class="rail-day ${i===0?'today':''}"><span>${new Intl.DateTimeFormat('it-IT',{weekday:'short'}).format(d)}</span><b>${d.getDate()}</b><div class="rail-dots">${this.dotItems(c)}</div></div>`}).join('');
+    return `<div class="view-head"><div class="eyebrow">Calendario</div><h1>I prossimi passaggi.</h1><p>Una lettura più visiva della settimana e dell'agenda di raccolta.</p></div><section class="calendar-hero"><div class="stage-head" style="padding:0"><div><h2>Sette prossime raccolte</h2><p>${this.entryName(e)}</p></div></div><div class="month-rail">${cards}</div></section>${this.timelineBlock(e,'Agenda completa',14)}`
+  }
+  placeView(e){
+    const entries=this._data?.entries||[];const opts=entries.map(x=>`<option value="${x.entry_id}" ${x.entry_id===e.entry_id?'selected':''}>${this.entryName(x)}</option>`).join('');
+    return `<div class="view-head"><div class="eyebrow">Comune</div><h1>La tua zona di raccolta.</h1><p>Passa rapidamente tra i Comuni configurati e apri le fonti CBBO.</p></div><div class="control-deck"><section class="control-panel"><label>Comune / zona</label><select class="select" id="entry-select">${opts}</select><div class="link-stack">${e.source_url?`<a class="wide-link" href="${e.source_url}" target="_blank" rel="noopener"><span>Pagina CBBO di ${e.municipality_name}</span><ha-icon icon="mdi:open-in-new"></ha-icon></a>`:''}${e.pdf_url?`<a class="wide-link" href="${e.pdf_url}" target="_blank" rel="noopener"><span>Ecocalendario ufficiale</span><ha-icon icon="mdi:file-pdf-box"></ha-icon></a>`:''}<button class="wide-link" id="refresh-place"><span>Aggiorna ora</span><ha-icon icon="mdi:refresh"></ha-icon></button></div></section><section class="info-panel"><div class="eyebrow">Profilo attivo</div><h2 style="margin:0;font-size:28px">${this.entryName(e)}</h2><p style="color:var(--secondary-text-color);line-height:1.6">Le entità Home Assistant e la dashboard usano questo profilo per mostrare il calendario della raccolta.</p><div class="waste-tokens" style="margin-top:22px">${this.wasteItems(e.next)}</div></section></div>`
+  }
+  diagView(e){return `<div class="view-head"><div class="eyebrow">Diagnostica</div><h1>Dati chiari, senza rumore.</h1><p>Le informazioni tecniche utili per capire da dove arriva il calendario e quando è stato aggiornato.</p></div><section class="info-grid"><div class="info-cell"><span>Sorgente dati</span><strong>${e.data_source||'—'}</strong><small>${this.sourceLabel(e)}</small></div><div class="info-cell"><span>Ultimo aggiornamento</span><strong>${this.fmtStamp(e.last_update)}</strong><small>Aggiornamento automatico ogni 6 ore</small></div><div class="info-cell"><span>Comune</span><strong>${this.entryName(e)}</strong><small>${e.municipality||''}</small></div><div class="info-cell"><span>Versione integrazione</span><strong>${this._data?.version||CBBO_PANEL_VERSION}</strong><small>CBBO Waste Collection</small></div></section>${e.last_error?`<section class="info-panel" style="margin-top:14px"><div class="eyebrow">Ultimo errore</div><strong>${e.last_error}</strong></section>`:''}`}
+  supportView(e){return `<div class="view-head"><div class="eyebrow">Open source</div><h1>Supporta il progetto.</h1><p>CBBO Waste Collection è gratuito e open source.</p></div><section class="support-stage"><div><h1>Ti è utile?<br>Offrimi un caffè. ☕</h1><p>Il supporto aiuta a mantenere l'integrazione aggiornata, verificare i calendari dei Comuni e continuare a migliorarne l'esperienza su Home Assistant.</p><div class="hero-actions"><a class="action-btn primary" href="${this._data?.ko_fi||'https://ko-fi.com/fabvittori'}" target="_blank" rel="noopener"><ha-icon icon="mdi:coffee-outline"></ha-icon>Supporta su Ko-fi</a><a class="action-btn" href="https://github.com/fabiovit/cbbo-waste-collection" target="_blank" rel="noopener"><ha-icon icon="mdi:github"></ha-icon>GitHub</a></div><div class="credits">💡 Idea originale: Riccardo Cosi<br>👨‍💻 Sviluppo e manutenzione: Fabio Vittori<br><br>CBBO® e il relativo logo appartengono ai rispettivi proprietari. Progetto indipendente non affiliato né approvato ufficialmente da CBBO.</div></div><div class="coffee-orb">☕</div></section>`}
+  bindMain(){
+    const main=this.shadowRoot.getElementById('view-content');
+    main?.querySelectorAll('[data-view]').forEach(el=>el.addEventListener('click',()=>this.navigate(el.dataset.view)));
+    main?.querySelector('#refresh-main')?.addEventListener('click',()=>this.refresh());
+    main?.querySelector('#refresh-place')?.addEventListener('click',()=>this.refresh());
+    main?.querySelector('#entry-select')?.addEventListener('change',ev=>{this._selectedEntryId=ev.target.value;localStorage.setItem('cbbo-panel-entry',this._selectedEntryId);this.renderMain()});
   }
 }
-
-if (!customElements.get("cbbo-waste-collection-panel-v220")) {
-  customElements.define("cbbo-waste-collection-panel-v220", CBBOWasteCollectionPanel);
-}
+if(!customElements.get('cbbo-waste-collection-panel-v230')) customElements.define('cbbo-waste-collection-panel-v230',CBBOWasteCollectionPanel);
