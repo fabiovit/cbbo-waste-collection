@@ -1,0 +1,22 @@
+name: Segnalazione bug
+description: Segnala un errore dell'integrazione
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: dropdown
+    id: municipality
+    attributes:
+      label: Comune
+      options: [Acquafredda, Barbariga, Calvisano, Capriano del Colle, Carpenedolo, Castenedolo, Flero, Ghedi, Isorella, Mazzano, Montichiari, Montirone, Nuvolento, Nuvolera, Poncarale, Remedello, San Zeno Naviglio, Visano]
+    validations: {required: true}
+  - type: input
+    id: version
+    attributes: {label: Versione integrazione, placeholder: "1.0.0"}
+    validations: {required: true}
+  - type: textarea
+    id: problem
+    attributes: {label: Problema, description: Descrivi cosa accade e cosa ti aspettavi.}
+    validations: {required: true}
+  - type: textarea
+    id: logs
+    attributes: {label: Log o diagnostica, description: Rimuovi eventuali dati personali.}

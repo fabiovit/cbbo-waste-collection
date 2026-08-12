@@ -1,0 +1,13 @@
+name: Proposta funzionalità
+description: Suggerisci un miglioramento
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: need
+    attributes: {label: Esigenza, description: Quale problema dovrebbe risolvere?}
+    validations: {required: true}
+  - type: textarea
+    id: proposal
+    attributes: {label: Proposta, description: Descrivi il comportamento desiderato.}
+    validations: {required: true}
