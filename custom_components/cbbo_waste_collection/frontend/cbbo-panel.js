@@ -1,4 +1,4 @@
-const CBBO_PANEL_VERSION = "2.3.1";
+const CBBO_PANEL_VERSION = "2.3.2";
 
 const WASTE_META = {
   organic:   { icon:"mdi:food-apple-outline", short:"Organico", cls:"organic" },
@@ -21,7 +21,7 @@ class CBBOWasteCollectionPanel extends HTMLElement {
     this._view=localStorage.getItem('cbbo-panel-view')||'home';
     this._selectedEntryId=localStorage.getItem('cbbo-panel-entry')||null;
     this._shellMounted=false;
-    this._refreshTimer=null;
+    this._refreshTimer=null;this._savingLocation=false;
   }
   set hass(v){
     this._hass=v;
@@ -58,6 +58,32 @@ class CBBOWasteCollectionPanel extends HTMLElement {
       this._lastLoad=0;await this.loadData(true);
     }catch(e){console.error(e);this._loading=false;this.renderMain()}
   }
+
+  async updateLocation(entryId,municipality,zone){
+    if(!this._hass||this._savingLocation)return;
+    this._savingLocation=true;
+    this.renderMain();
+    try{
+      await this._hass.callWS({
+        type:'cbbo_waste_collection/update_location',
+        entry_id:entryId,
+        municipality,
+        zone
+      });
+      this._selectedEntryId=entryId;
+      localStorage.setItem('cbbo-panel-entry',entryId);
+      this._lastLoad=0;
+      await new Promise(r=>setTimeout(r,500));
+      await this.loadData(true);
+    }catch(err){
+      console.error('CBBO location update',err);
+      alert(`Impossibile cambiare Comune: ${err?.message||err}`);
+    }finally{
+      this._savingLocation=false;
+      this.renderMain();
+    }
+  }
+
   entry(){const e=this._data?.entries||[];return e.find(x=>x.entry_id===this._selectedEntryId)||e[0]||null}
   entryName(e=this.entry()){if(!e)return 'CBBO';return e.zone_name?`${e.municipality_name} · ${e.zone_name}`:e.municipality_name}
   fmtDate(v,weekday=true){if(!v)return '—';const d=new Date(`${v}T12:00:00`);return new Intl.DateTimeFormat('it-IT',{weekday:weekday?'long':undefined,day:'numeric',month:'long'}).format(d)}
@@ -79,7 +105,7 @@ main{width:min(1480px,100%);margin:auto;padding:22px 22px 0}.footer{width:min(14
 .empty-state{padding:80px 24px;text-align:center}.empty-state ha-icon{--mdc-icon-size:52px;color:var(--cbbo)}.empty-state h2{font-size:28px}.empty-state p{color:var(--secondary-text-color)}
 @media(max-width:980px){.hero{grid-template-columns:1fr}.status-strip{grid-template-columns:1fr 1fr}.status-item:nth-child(2){border-right:0}.status-item:nth-child(-n+2){border-bottom:1px solid var(--divider-color)}.month-rail{grid-template-columns:repeat(4,1fr)}.control-deck{grid-template-columns:1fr}.support-stage{grid-template-columns:1fr}}
 @media(max-width:620px){.waste-token{width:100%;padding:13px 14px}.waste-token ha-icon{--mdc-icon-size:40px}.waste-dot{width:44px;height:44px}.waste-dot ha-icon{--mdc-icon-size:28px}.rail-dots .waste-dot{width:38px;height:38px}.rail-dots .waste-dot ha-icon{--mdc-icon-size:24px}.app{padding:0 0 42px}.menu-btn{display:flex}.topbar-main{min-height:62px;padding:9px 10px 7px;gap:7px}.app-identity{gap:8px}.app-icon{width:39px;height:39px;border-radius:12px}.app-icon img{width:30px;height:30px}.brand-title{font-size:19px}.brand-subtitle{font-size:10px;margin-top:3px}.version-badge{font-size:8px;padding:3px 6px}.nav-scroller{padding:0 10px}.nav{gap:18px}.nav-btn{padding:9px 1px 11px;font-size:12px;min-height:42px}.nav-btn ha-icon{--mdc-icon-size:18px}main{padding:12px 10px 0}.footer{padding:0 10px}.hero{padding:23px 19px;border-radius:26px;min-height:auto}.hero-copy h1{font-size:39px}.hero-side{gap:9px}.next-orbit{padding:21px}.next-orbit strong{font-size:24px}.status-strip{grid-template-columns:1fr 1fr;border-radius:22px}.status-item{padding:17px 16px}.status-item strong{font-size:15px}.stage-head{padding:21px 19px 15px}.timeline-row{grid-template-columns:1fr auto;padding:15px 19px;gap:12px}.timeline-main{grid-column:1/-1;grid-row:2}.month-rail{grid-template-columns:repeat(2,1fr);gap:7px}.rail-day{min-height:115px}.control-panel,.info-panel,.support-stage,.calendar-hero{padding:21px 18px;border-radius:24px}.info-grid{grid-template-columns:1fr}.support-stage h1{font-size:36px}.coffee-orb{width:150px;height:150px;font-size:58px}.view-head h1{font-size:29px}}
-.status-item small{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.status-item small .waste-dot{width:42px;height:42px;border-radius:13px}.status-item small .waste-dot ha-icon{--mdc-icon-size:27px}.next-orbit{border-radius:26px!important}.next-orbit strong{font-size:28px!important;line-height:1.05}.day-count b{font-size:46px!important}.hero-side .next-orbit{box-shadow:0 10px 26px color-mix(in srgb,#000 5%,transparent)}</style><div class="app"><header class="topbar"><div class="topbar-main"><button class="menu-btn" id="ha-menu-toggle" aria-label="Apri menu Home Assistant" title="Menu Home Assistant"><ha-icon icon="mdi:menu"></ha-icon></button><div class="app-identity"><div class="app-icon"><img src="/cbbo_waste_collection/icon.png" alt=""></div><div class="brand"><div class="brand-line"><div class="brand-title">CBBO Waste Collection</div><span class="version-badge">2.3.1</span></div><div class="brand-subtitle" id="brand-subtitle">Raccolta differenziata · Waste Center</div></div></div></div><div class="nav-scroller"><nav class="nav tabs">${this.tab('home','mdi:view-dashboard','Panoramica')}${this.tab('calendar','mdi:calendar-month','Calendario')}${this.tab('place','mdi:map-marker-outline','Comune')}${this.tab('diag','mdi:tools','Diagnostica')}<button class="nav-btn support-nav" id="support-nav" type="button"><ha-icon icon="mdi:coffee-outline"></ha-icon><span>Supporta il progetto</span></button></nav></div></header><main id="view-content"></main><div class="footer">CBBO Waste Collection · v2.3.1 · Idea Riccardo Cosi · Fabio Vittori</div></div>`;
+.status-item small{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.status-item small .waste-dot{width:42px;height:42px;border-radius:13px}.status-item small .waste-dot ha-icon{--mdc-icon-size:27px}.next-orbit{border-radius:26px!important}.next-orbit strong{font-size:28px!important;line-height:1.05}.day-count b{font-size:46px!important}.hero-side .next-orbit{box-shadow:0 10px 26px color-mix(in srgb,#000 5%,transparent)}</style><div class="app"><header class="topbar"><div class="topbar-main"><button class="menu-btn" id="ha-menu-toggle" aria-label="Apri menu Home Assistant" title="Menu Home Assistant"><ha-icon icon="mdi:menu"></ha-icon></button><div class="app-identity"><div class="app-icon"><img src="/cbbo_waste_collection/icon.png" alt=""></div><div class="brand"><div class="brand-line"><div class="brand-title">CBBO Waste Collection</div><span class="version-badge">2.3.2</span></div><div class="brand-subtitle" id="brand-subtitle">Raccolta differenziata · Waste Center</div></div></div></div><div class="nav-scroller"><nav class="nav tabs">${this.tab('home','mdi:view-dashboard','Panoramica')}${this.tab('calendar','mdi:calendar-month','Calendario')}${this.tab('place','mdi:map-marker-outline','Comune')}${this.tab('diag','mdi:tools','Diagnostica')}<button class="nav-btn support-nav" id="support-nav" type="button"><ha-icon icon="mdi:coffee-outline"></ha-icon><span>Supporta il progetto</span></button></nav></div></header><main id="view-content"></main><div class="footer">CBBO Waste Collection · v2.3.2 · Idea Riccardo Cosi · Fabio Vittori</div></div>`;
     this._shellMounted=true;this.bindShell();this.renderMain();
   }
   bindShell(){
@@ -118,8 +144,38 @@ main{width:min(1480px,100%);margin:auto;padding:22px 22px 0}.footer{width:min(14
     return `<div class="view-head"><div class="eyebrow">Calendario</div><h1>I prossimi passaggi.</h1><p>Una lettura più visiva della settimana e dell'agenda di raccolta.</p></div><section class="calendar-hero"><div class="stage-head" style="padding:0"><div><h2>Sette prossime raccolte</h2><p>${this.entryName(e)}</p></div></div><div class="month-rail">${cards}</div></section>${this.timelineBlock(e,'Agenda completa',14)}`
   }
   placeView(e){
-    const entries=this._data?.entries||[];const opts=entries.map(x=>`<option value="${x.entry_id}" ${x.entry_id===e.entry_id?'selected':''}>${this.entryName(x)}</option>`).join('');
-    return `<div class="view-head"><div class="eyebrow">Comune</div><h1>La tua zona di raccolta.</h1><p>Passa rapidamente tra i Comuni configurati e apri le fonti CBBO.</p></div><div class="control-deck"><section class="control-panel"><label>Comune / zona</label><select class="select" id="entry-select">${opts}</select><div class="link-stack">${e.source_url?`<a class="wide-link" href="${e.source_url}" target="_blank" rel="noopener"><span>Pagina CBBO di ${e.municipality_name}</span><ha-icon icon="mdi:open-in-new"></ha-icon></a>`:''}${e.pdf_url?`<a class="wide-link" href="${e.pdf_url}" target="_blank" rel="noopener"><span>Ecocalendario ufficiale</span><ha-icon icon="mdi:file-pdf-box"></ha-icon></a>`:''}<button class="wide-link" id="refresh-place"><span>Aggiorna ora</span><ha-icon icon="mdi:refresh"></ha-icon></button></div></section><section class="info-panel"><div class="eyebrow">Profilo attivo</div><h2 style="margin:0;font-size:28px">${this.entryName(e)}</h2><p style="color:var(--secondary-text-color);line-height:1.6">Le entità Home Assistant e la dashboard usano questo profilo per mostrare il calendario della raccolta.</p><div class="waste-tokens" style="margin-top:22px">${this.wasteItems(e.next)}</div></section></div>`
+    const municipalities=this._data?.municipalities||[];
+    const zones=this._data?.zones||{};
+    const municipalityOptions=municipalities.map(x=>`<option value="${x.value}" ${x.value===e.municipality?'selected':''}>${x.label}</option>`).join('');
+    const currentZones=zones[e.municipality]||{};
+    const zoneOptions=Object.entries(currentZones).map(([value,label])=>`<option value="${value}" ${value===e.zone?'selected':''}>${label}</option>`).join('');
+    const showZone=Object.keys(currentZones).length>0;
+    return `<div class="view-head"><div class="eyebrow">Comune</div><h1>La tua zona di raccolta.</h1><p>Seleziona uno dei 18 Comuni CBBO. Per Mazzano puoi scegliere anche Zona Nord o Zona Sud.</p></div>
+    <div class="control-deck">
+      <section class="control-panel">
+        <label>Comune</label>
+        <select class="select" id="municipality-select">${municipalityOptions}</select>
+        <div id="zone-wrap" style="${showZone?'':'display:none'};margin-top:14px">
+          <label>Zona</label>
+          <select class="select" id="zone-select">${zoneOptions}</select>
+        </div>
+        <button class="action-btn primary" id="save-location" style="margin-top:18px;width:100%;justify-content:center" ${this._savingLocation?'disabled':''}>
+          <ha-icon icon="${this._savingLocation?'mdi:loading':'mdi:content-save-outline'}"></ha-icon>
+          ${this._savingLocation?'Salvataggio…':'Salva Comune'}
+        </button>
+        <div class="link-stack">
+          ${e.source_url?`<a class="wide-link" href="${e.source_url}" target="_blank" rel="noopener"><span>Pagina CBBO di ${e.municipality_name}</span><ha-icon icon="mdi:open-in-new"></ha-icon></a>`:''}
+          ${e.pdf_url?`<a class="wide-link" href="${e.pdf_url}" target="_blank" rel="noopener"><span>Ecocalendario ufficiale</span><ha-icon icon="mdi:file-pdf-box"></ha-icon></a>`:''}
+          <button class="wide-link" id="refresh-place"><span>Aggiorna ora</span><ha-icon icon="mdi:refresh"></ha-icon></button>
+        </div>
+      </section>
+      <section class="info-panel">
+        <div class="eyebrow">Profilo attivo</div>
+        <h2 style="margin:0;font-size:28px">${this.entryName(e)}</h2>
+        <p style="color:var(--secondary-text-color);line-height:1.6">Salvando un nuovo Comune, questa configurazione Home Assistant verrà aggiornata e ricaricata automaticamente.</p>
+        <div class="waste-tokens" style="margin-top:22px">${this.wasteItems(e.next)}</div>
+      </section>
+    </div>`
   }
   diagView(e){return `<div class="view-head"><div class="eyebrow">Diagnostica</div><h1>Dati chiari, senza rumore.</h1><p>Le informazioni tecniche utili per capire da dove arriva il calendario e quando è stato aggiornato.</p></div><section class="info-grid"><div class="info-cell"><span>Sorgente dati</span><strong>${e.data_source||'—'}</strong><small>${this.sourceLabel(e)}</small></div><div class="info-cell"><span>Ultimo aggiornamento</span><strong>${this.fmtStamp(e.last_update)}</strong><small>Aggiornamento automatico ogni 6 ore</small></div><div class="info-cell"><span>Comune</span><strong>${this.entryName(e)}</strong><small>${e.municipality||''}</small></div><div class="info-cell"><span>Versione integrazione</span><strong>${this._data?.version||CBBO_PANEL_VERSION}</strong><small>CBBO Waste Collection</small></div></section>${e.last_error?`<section class="info-panel" style="margin-top:14px"><div class="eyebrow">Ultimo errore</div><strong>${e.last_error}</strong></section>`:''}`}
   supportView(e){return `<div class="view-head"><div class="eyebrow">Open source</div><h1>Supporta il progetto.</h1><p>CBBO Waste Collection è gratuito e open source.</p></div><section class="support-stage"><div><h1>Ti è utile?<br>Offrimi un caffè. ☕</h1><p>Il supporto aiuta a mantenere l'integrazione aggiornata, verificare i calendari dei Comuni e continuare a migliorarne l'esperienza su Home Assistant.</p><div class="hero-actions"><a class="action-btn primary" href="${this._data?.ko_fi||'https://ko-fi.com/fabvittori'}" target="_blank" rel="noopener"><ha-icon icon="mdi:coffee-outline"></ha-icon>Supporta su Ko-fi</a><a class="action-btn" href="https://github.com/fabiovit/cbbo-waste-collection" target="_blank" rel="noopener"><ha-icon icon="mdi:github"></ha-icon>GitHub</a></div><div class="credits">💡 Idea originale: Riccardo Cosi<br>👨‍💻 Sviluppo e manutenzione: Fabio Vittori<br><br>CBBO® e il relativo logo appartengono ai rispettivi proprietari. Progetto indipendente non affiliato né approvato ufficialmente da CBBO.</div></div><div class="coffee-orb">☕</div></section>`}
@@ -127,8 +183,29 @@ main{width:min(1480px,100%);margin:auto;padding:22px 22px 0}.footer{width:min(14
     const main=this.shadowRoot.getElementById('view-content');
     main?.querySelectorAll('[data-view]').forEach(el=>el.addEventListener('click',()=>this.navigate(el.dataset.view)));
     main?.querySelector('#refresh-main')?.addEventListener('click',()=>this.refresh());
+
+    const municipalitySelect=main?.querySelector('#municipality-select');
+    const zoneWrap=main?.querySelector('#zone-wrap');
+    const zoneSelect=main?.querySelector('#zone-select');
+    municipalitySelect?.addEventListener('change',()=>{
+      const municipality=municipalitySelect.value;
+      const zones=this._data?.zones?.[municipality]||{};
+      const entries=Object.entries(zones);
+      if(zoneWrap) zoneWrap.style.display=entries.length?'block':'none';
+      if(zoneSelect){
+        zoneSelect.innerHTML=entries.map(([value,label])=>`<option value="${value}">${label}</option>`).join('');
+      }
+    });
+    main?.querySelector('#save-location')?.addEventListener('click',()=>{
+      const municipality=municipalitySelect?.value;
+      if(!municipality)return;
+      const zones=this._data?.zones?.[municipality]||{};
+      const zone=Object.keys(zones).length?(zoneSelect?.value||Object.keys(zones)[0]):'default';
+      this.updateLocation(e.entry_id,municipality,zone);
+    });
+
     main?.querySelector('#refresh-place')?.addEventListener('click',()=>this.refresh());
-    main?.querySelector('#entry-select')?.addEventListener('change',ev=>{this._selectedEntryId=ev.target.value;localStorage.setItem('cbbo-panel-entry',this._selectedEntryId);this.renderMain()});
+
   }
 }
-if(!customElements.get('cbbo-waste-collection-panel-v231')) customElements.define('cbbo-waste-collection-panel-v231',CBBOWasteCollectionPanel);
+if(!customElements.get('cbbo-waste-collection-panel-v232')) customElements.define('cbbo-waste-collection-panel-v232',CBBOWasteCollectionPanel);

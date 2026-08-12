@@ -1,6 +1,6 @@
 # ♻️ CBBO Waste Collection
 
-[![Release](https://img.shields.io/badge/release-v2.3.1-blue)](https://github.com/fabiovit/cbbo-waste-collection/releases)
+[![Release](https://img.shields.io/badge/release-v2.3.2-blue)](https://github.com/fabiovit/cbbo-waste-collection/releases)
 [![HACS](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/)
 [![Validate](https://img.shields.io/github/actions/workflow/status/fabiovit/cbbo-waste-collection/validate.yml?branch=main&label=Validate)](https://github.com/fabiovit/cbbo-waste-collection/actions/workflows/validate.yml)
 [![Hassfest](https://img.shields.io/github/actions/workflow/status/fabiovit/cbbo-waste-collection/hassfest.yml?branch=main&label=Hassfest)](https://github.com/fabiovit/cbbo-waste-collection/actions/workflows/hassfest.yml)
@@ -10,7 +10,7 @@ Custom integration for Home Assistant that exposes CBBO waste collection calenda
 
 > **CBBO® e il relativo logo sono marchi dei rispettivi proprietari. Questa è un'integrazione indipendente per Home Assistant, non affiliata, sponsorizzata né approvata ufficialmente da CBBO.**
 
-## Versione 2.3.1
+## Versione 2.3.2
 
 La versione **2.3.0** rinnova completamente l'esperienza della dashboard CBBO in Home Assistant.
 
@@ -190,9 +190,9 @@ La dashboard CBBO adotta la stessa shell di navigazione di Inverter Dashboard v1
 Il repository include controlli automatici HACS, Hassfest, test Python e verifica della coerenza tra tag GitHub e versione del manifest. Per ogni release pubblica usare una GitHub Release completa con tag `vX.Y.Z`, non soltanto un tag.
 
 
-## 🎨 Novità grafiche 2.3.1
+## 🎨 Novità grafiche 2.3.2
 
-La v2.3.1 migliora l'interfaccia della Waste Center con icone dei rifiuti molto più grandi,
+La v2.3.2 migliora l'interfaccia della Waste Center con icone dei rifiuti molto più grandi,
 badge più leggibili, hero di esposizione più evidente e una timeline più visuale.
 
 La logica dei calendari e tutte le entità Home Assistant restano invariate.
