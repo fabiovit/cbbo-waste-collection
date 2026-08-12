@@ -2,6 +2,9 @@
 
 ## 2.3.0
 
+- Corretta la validazione Hassfest: ordine delle chiavi del manifest conforme a Home Assistant.
+- Aggiunto `CONFIG_SCHEMA` per dichiarare esplicitamente la configurazione solo tramite Config Flow.
+
 - README e info HACS aggiornati alla release 2.3.0 con badge e documentazione coerenti.
 
 - Aggiunti HACS Action e Hassfest con controlli su push, pull request, release e schedulazione giornaliera.

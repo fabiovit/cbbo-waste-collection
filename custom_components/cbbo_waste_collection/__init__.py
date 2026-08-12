@@ -2,11 +2,15 @@
 from __future__ import annotations
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant,ServiceCall
+from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers.typing import ConfigType
 from .const import DOMAIN,PLATFORMS,SERVICE_REFRESH,SERVICE_CLEAR_CACHE
 from .coordinator import CBBOWasteCoordinator
 from .panel import async_setup_panel
 
-async def async_setup(hass:HomeAssistant,config:dict)->bool:
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
+
+async def async_setup(hass:HomeAssistant,config:ConfigType)->bool:
     await async_setup_panel(hass)
     async def refresh(call:ServiceCall):
         for entry in hass.config_entries.async_entries(DOMAIN):
