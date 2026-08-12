@@ -1,14 +1,14 @@
 # Changelog
 
-## 2.3.2
+## 2.3.3
 
-- Corretto completamente il selettore nella sezione Comune.
-- Il menu mostra ora tutti i 18 Comuni CBBO, non soltanto le configurazioni già presenti.
-- Aggiunta selezione Zona Nord / Zona Sud per Mazzano.
-- Aggiunto pulsante “Salva Comune”.
-- Il salvataggio aggiorna realmente la Config Entry Home Assistant e ricarica automaticamente l'integrazione.
-- Impedita la creazione involontaria di duplicati Comune/zona.
-- Nessuna modifica ai calendari o alla struttura grafica della Waste Center.
+- Rifatta la selezione del Comune nella Waste Center.
+- Rimossi i vecchi menu `<select>` nativi.
+- Nuovo Location Picker moderno con apertura stabile e profilo attivo evidenziato.
+- Vengono mostrati esclusivamente i Comuni e le zone già configurati dall'utente in Home Assistant.
+- Il cambio profilo è immediato e viene ricordato localmente dalla dashboard.
+- Migliorato il comportamento del selettore su desktop e mobile.
+- Nessuna modifica ai calendari, alle Config Entry, agli entity ID o alla logica di raccolta.
 
 ## 2.3.1
 

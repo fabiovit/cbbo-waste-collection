@@ -11,16 +11,9 @@ from homeassistant.components import frontend, panel_custom, websocket_api
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.core import HomeAssistant, callback
 
-from .const import (
-    CONF_MUNICIPALITY,
-    CONF_ZONE,
-    DOMAIN,
-    MUNICIPALITIES,
-    MUNICIPALITY_ZONES,
-    ZONE_DEFAULT,
-)
+from .const import DOMAIN, MUNICIPALITY_ZONES, ZONE_DEFAULT
 
-PANEL_COMPONENT = "cbbo-waste-collection-panel-v232"
+PANEL_COMPONENT = "cbbo-waste-collection-panel-v233"
 PANEL_URL_PATH = "cbbo-waste-collection"
 PANEL_JS_URL = "/cbbo_waste_collection/cbbo-panel.js"
 PANEL_ICON_URL = "/cbbo_waste_collection/icon.png"
@@ -128,87 +121,9 @@ def websocket_panel_data(
     connection.send_result(
         msg["id"],
         {
-            "version": "2.3.2",
+            "version": "2.3.3",
             "entries": entries,
-            "municipalities": [
-                {"value": key, "label": label}
-                for key, label in MUNICIPALITIES.items()
-            ],
-            "zones": MUNICIPALITY_ZONES,
             "ko_fi": "https://ko-fi.com/fabvittori",
-        },
-    )
-
-
-@websocket_api.require_admin
-@websocket_api.websocket_command(
-    {
-        vol.Required("type"): f"{DOMAIN}/update_location",
-        vol.Required("entry_id"): str,
-        vol.Required("municipality"): vol.In(MUNICIPALITIES),
-        vol.Required("zone"): str,
-    }
-)
-@websocket_api.async_response
-async def websocket_update_location(
-    hass: HomeAssistant,
-    connection: websocket_api.ActiveConnection,
-    msg: dict[str, Any],
-) -> None:
-    """Update municipality/zone for an existing CBBO config entry."""
-    entry = hass.config_entries.async_get_entry(msg["entry_id"])
-    if entry is None or entry.domain != DOMAIN:
-        connection.send_error(msg["id"], "entry_not_found", "CBBO config entry not found")
-        return
-
-    municipality = msg["municipality"]
-    requested_zone = msg["zone"]
-
-    zones = MUNICIPALITY_ZONES.get(municipality)
-    if zones:
-        if requested_zone not in zones:
-            connection.send_error(msg["id"], "invalid_zone", "Invalid zone for municipality")
-            return
-        zone = requested_zone
-    else:
-        zone = ZONE_DEFAULT
-
-    new_unique_id = f"{municipality}:{zone}"
-    for other in hass.config_entries.async_entries(DOMAIN):
-        if other.entry_id != entry.entry_id and other.unique_id == new_unique_id:
-            connection.send_error(
-                msg["id"],
-                "already_configured",
-                "This municipality / zone is already configured",
-            )
-            return
-
-    new_data = {
-        **entry.data,
-        CONF_MUNICIPALITY: municipality,
-        CONF_ZONE: zone,
-    }
-
-    title = f"Differenziata {MUNICIPALITIES[municipality]}"
-    zone_name = MUNICIPALITY_ZONES.get(municipality, {}).get(zone)
-    if zone_name:
-        title += f" - {zone_name}"
-
-    hass.config_entries.async_update_entry(
-        entry,
-        data=new_data,
-        title=title,
-        unique_id=new_unique_id,
-    )
-
-    await hass.config_entries.async_reload(entry.entry_id)
-    connection.send_result(
-        msg["id"],
-        {
-            "entry_id": entry.entry_id,
-            "municipality": municipality,
-            "zone": zone,
-            "title": title,
         },
     )
 
@@ -231,7 +146,6 @@ async def async_setup_panel(hass: HomeAssistant) -> None:
     )
 
     websocket_api.async_register_command(hass, websocket_panel_data)
-    websocket_api.async_register_command(hass, websocket_update_location)
 
     if not frontend.async_panel_exists(hass, PANEL_URL_PATH):
         await panel_custom.async_register_panel(
@@ -240,6 +154,6 @@ async def async_setup_panel(hass: HomeAssistant) -> None:
             webcomponent_name=PANEL_COMPONENT,
             sidebar_title="CBBO Waste Collection",
             sidebar_icon="mdi:recycle",
-            module_url=f"{PANEL_JS_URL}?v=2.3.2-20260812",
+            module_url=f"{PANEL_JS_URL}?v=2.3.3-20260812",
             require_admin=False,
         )

@@ -6,7 +6,7 @@ INTEGRATION = ROOT / "custom_components" / "cbbo_waste_collection"
 
 def test_version():
     manifest = json.loads((INTEGRATION / "manifest.json").read_text())
-    assert manifest["version"] == "2.3.2"
+    assert manifest["version"] == "2.3.3"
 
 def test_large_waste_icons():
     panel = (INTEGRATION / "frontend" / "cbbo-panel.js").read_text()
