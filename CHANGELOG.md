@@ -2,6 +2,8 @@
 
 ## 2.3.0
 
+- README e info HACS aggiornati alla release 2.3.0 con badge e documentazione coerenti.
+
 - Aggiunti HACS Action e Hassfest con controlli su push, pull request, release e schedulazione giornaliera.
 - Aggiunto controllo automatico di coerenza tra tag GitHub e versione del `manifest.json`.
 - Aggiunta checklist di pubblicazione per ridurre errori di tag/release e rilevamento HACS.

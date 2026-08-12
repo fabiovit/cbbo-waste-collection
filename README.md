@@ -1,19 +1,40 @@
 # ♻️ CBBO Waste Collection
 
-[![GitHub release](https://img.shields.io/github/v/release/fabiovit/cbbo-waste-collection)](https://github.com/fabiovit/cbbo-waste-collection/releases)
+[![Release](https://img.shields.io/badge/release-v2.3.0-blue)](https://github.com/fabiovit/cbbo-waste-collection/releases)
 [![HACS](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/)
-[![Validate](https://github.com/fabiovit/cbbo-waste-collection/actions/workflows/validate.yml/badge.svg)](https://github.com/fabiovit/cbbo-waste-collection/actions/workflows/validate.yml)
-[![License](https://img.shields.io/github/license/fabiovit/cbbo-waste-collection)](LICENSE)
+[![Validate](https://img.shields.io/github/actions/workflow/status/fabiovit/cbbo-waste-collection/validate.yml?branch=main&label=Validate)](https://github.com/fabiovit/cbbo-waste-collection/actions/workflows/validate.yml)
+[![Hassfest](https://img.shields.io/github/actions/workflow/status/fabiovit/cbbo-waste-collection/hassfest.yml?branch=main&label=Hassfest)](https://github.com/fabiovit/cbbo-waste-collection/actions/workflows/hassfest.yml)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 Custom integration for Home Assistant that exposes CBBO waste collection calendars as sensors, binary sensors and a calendar entity.
 
 > **CBBO® e il relativo logo sono marchi dei rispettivi proprietari. Questa è un'integrazione indipendente per Home Assistant, non affiliata, sponsorizzata né approvata ufficialmente da CBBO.**
 
-## Versione 2.0
+## Versione 2.3.0
 
-La versione 2.0 introduce un profilo calendario 2026 integrato per **tutti i 18 Comuni CBBO**. L'integrazione prova comunque prima a leggere i dati pubblicati online da CBBO; se il calendario della pagina non è disponibile in un formato interpretabile, utilizza cache, memoria o il profilo locale del Comune.
+La versione **2.3.0** rinnova completamente l'esperienza della dashboard CBBO in Home Assistant.
 
-Questo evita l'errore `Calendario non riconosciuto nella pagina CBBO` e permette a ogni Comune supportato di essere configurato anche quando il calendario web è renderizzato dinamicamente.
+La nuova **Waste Center** usa come riferimento strutturale e responsive la Inverter Dashboard v1.1.4: testata compatta, navigazione interna orizzontale, layout quasi a tutta larghezza e comportamento mobile più naturale.
+
+### Novità principali
+
+- nuova testata applicativa compatta e sticky;
+- nuovo menu interno:
+  - Panoramica
+  - Calendario
+  - Comune
+  - Diagnostica
+  - Supporta il progetto
+- nuova Panoramica con esposizione serale, oggi/domani, prossimo ritiro e giorni mancanti;
+- timeline visiva delle prossime raccolte;
+- nuova vista Calendario;
+- nuova sezione Comune / zona;
+- nuova sezione Diagnostica;
+- sezione **Supporta il progetto** con Ko-fi;
+- mantenuti tutti i 18 Comuni CBBO e le zone Nord/Sud di Mazzano;
+- nessuna modifica agli entity ID esistenti;
+- HACS Action, Hassfest e controlli automatici di coerenza tag/versione.
+
 
 ## Funzioni
 
@@ -133,7 +154,7 @@ L'integrazione include direttamente icona e logo locali. L'icona del progetto ut
 
 ## 🖥️ Dashboard dedicata nella barra laterale
 
-Dalla versione **2.2.0**, CBBO Waste Collection aggiunge automaticamente una voce
+Dalla versione **2.3.0**, CBBO Waste Collection aggiunge automaticamente una voce
 **♻️ CBBO Waste Collection** nella barra laterale di Home Assistant.
 
 La dashboard mostra rifiuti di oggi e domani, prossimo ritiro, giorni mancanti,
@@ -158,6 +179,12 @@ https://ko-fi.com/fabvittori
 
 Su mobile la dashboard laterale include un pulsante hamburger `mdi:menu` in alto a sinistra per aprire direttamente il menu laterale di Home Assistant.
 
-## 🎨 Interfaccia 2.2
 
-La dashboard laterale ora usa una testata compatta in stile PawBook/Home Assistant, con hamburger mobile, logo CBBO, versione, Comune/zona e supporto Ko-fi discreto. Il precedente hero verde è stato rimosso.
+## ♻️ Waste Center 2.3
+
+La dashboard CBBO adotta la stessa shell di navigazione di Inverter Dashboard v1.1.4: testata sticky compatta, menu interno orizzontale e contenuto responsive a larghezza piena. Le viste Panoramica, Calendario, Comune e Diagnostica sostituiscono la precedente pagina a blocchi; “Supporta il progetto” resta sempre disponibile dal menu.
+
+
+## ✅ Validazione e release
+
+Il repository include controlli automatici HACS, Hassfest, test Python e verifica della coerenza tra tag GitHub e versione del manifest. Per ogni release pubblica usare una GitHub Release completa con tag `vX.Y.Z`, non soltanto un tag.
