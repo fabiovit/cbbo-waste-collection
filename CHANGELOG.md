@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.3.4
+
+- Corretto il Location Picker su iPhone/iOS.
+- Il pannello dei Comuni non si richiude più subito dopo il tap di apertura.
+- Rimosso il listener globale che intercettava il click sintetico di Safari/iOS.
+- Il picker ora rimane aperto finché l'utente seleziona un profilo o ritocca il pulsante.
+- Migliorato il comportamento touch e lo scrolling del menu su smartphone.
+- Il menu continua a mostrare esclusivamente i profili CBBO già configurati.
+- Nessuna modifica ai calendari, entity ID o Config Entry.
+
 ## 2.3.3
 
 - Rifatta la selezione del Comune nella Waste Center.

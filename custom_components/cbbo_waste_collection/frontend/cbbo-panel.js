@@ -1,4 +1,4 @@
-const CBBO_PANEL_VERSION = "2.3.3";
+const CBBO_PANEL_VERSION = "2.3.4";
 
 const WASTE_META = {
   organic:   { icon:"mdi:food-apple-outline", short:"Organico", cls:"organic" },
@@ -157,11 +157,20 @@ main{width:min(1480px,100%);margin:auto;padding:22px 22px 0}.footer{width:min(14
   .location-picker-trigger{padding:12px 13px;border-radius:16px}
   .location-picker-icon{width:44px;height:44px;border-radius:13px}
   .location-picker-menu{
-    position:fixed;left:12px;right:12px;top:auto;bottom:16px;
-    max-height:min(60vh,520px);overflow:auto;border-radius:22px
+    position:absolute;left:0;right:0;top:calc(100% + 8px);bottom:auto;
+    max-height:52vh;overflow:auto;border-radius:18px;
+    -webkit-overflow-scrolling:touch
   }
 }
-</style><div class="app"><header class="topbar"><div class="topbar-main"><button class="menu-btn" id="ha-menu-toggle" aria-label="Apri menu Home Assistant" title="Menu Home Assistant"><ha-icon icon="mdi:menu"></ha-icon></button><div class="app-identity"><div class="app-icon"><img src="/cbbo_waste_collection/icon.png" alt=""></div><div class="brand"><div class="brand-line"><div class="brand-title">CBBO Waste Collection</div><span class="version-badge">2.3.3</span></div><div class="brand-subtitle" id="brand-subtitle">Raccolta differenziata · Waste Center</div></div></div></div><div class="nav-scroller"><nav class="nav tabs">${this.tab('home','mdi:view-dashboard','Panoramica')}${this.tab('calendar','mdi:calendar-month','Calendario')}${this.tab('place','mdi:map-marker-outline','Comune')}${this.tab('diag','mdi:tools','Diagnostica')}<button class="nav-btn support-nav" id="support-nav" type="button"><ha-icon icon="mdi:coffee-outline"></ha-icon><span>Supporta il progetto</span></button></nav></div></header><main id="view-content"></main><div class="footer">CBBO Waste Collection · v2.3.3 · Idea Riccardo Cosi · Fabio Vittori</div></div>`;
+
+.location-picker-trigger,.location-option{
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+.location-picker-menu{
+  overscroll-behavior:contain;
+}
+</style><div class="app"><header class="topbar"><div class="topbar-main"><button class="menu-btn" id="ha-menu-toggle" aria-label="Apri menu Home Assistant" title="Menu Home Assistant"><ha-icon icon="mdi:menu"></ha-icon></button><div class="app-identity"><div class="app-icon"><img src="/cbbo_waste_collection/icon.png" alt=""></div><div class="brand"><div class="brand-line"><div class="brand-title">CBBO Waste Collection</div><span class="version-badge">2.3.4</span></div><div class="brand-subtitle" id="brand-subtitle">Raccolta differenziata · Waste Center</div></div></div></div><div class="nav-scroller"><nav class="nav tabs">${this.tab('home','mdi:view-dashboard','Panoramica')}${this.tab('calendar','mdi:calendar-month','Calendario')}${this.tab('place','mdi:map-marker-outline','Comune')}${this.tab('diag','mdi:tools','Diagnostica')}<button class="nav-btn support-nav" id="support-nav" type="button"><ha-icon icon="mdi:coffee-outline"></ha-icon><span>Supporta il progetto</span></button></nav></div></header><main id="view-content"></main><div class="footer">CBBO Waste Collection · v2.3.4 · Idea Riccardo Cosi · Fabio Vittori</div></div>`;
     this._shellMounted=true;this.bindShell();this.renderMain();
   }
   bindShell(){
@@ -257,8 +266,10 @@ main{width:min(1480px,100%);margin:auto;padding:22px 22px 0}.footer{width:min(14
     trigger?.addEventListener('click',ev=>{
       ev.preventDefault();
       ev.stopPropagation();
-      const open=picker?.classList.toggle('open');
-      trigger.setAttribute('aria-expanded',open?'true':'false');
+      if(!picker)return;
+      const willOpen=!picker.classList.contains('open');
+      picker.classList.toggle('open',willOpen);
+      trigger.setAttribute('aria-expanded',willOpen?'true':'false');
     });
 
     menu?.addEventListener('click',ev=>ev.stopPropagation());
@@ -273,21 +284,14 @@ main{width:min(1480px,100%);margin:auto;padding:22px 22px 0}.footer{width:min(14
           trigger?.setAttribute('aria-expanded','false');
           return;
         }
+        picker?.classList.remove('open');
+        trigger?.setAttribute('aria-expanded','false');
         this._selectedEntryId=entryId;
         localStorage.setItem('cbbo-panel-entry',entryId);
         this.renderMain();
       });
     });
 
-    if(picker){
-      const closePicker=ev=>{
-        if(!picker.contains(ev.target)){
-          picker.classList.remove('open');
-          trigger?.setAttribute('aria-expanded','false');
-        }
-      };
-      setTimeout(()=>document.addEventListener('click',closePicker,{once:true}),0);
-    }
   }
 }
-if(!customElements.get('cbbo-waste-collection-panel-v233')) customElements.define('cbbo-waste-collection-panel-v233',CBBOWasteCollectionPanel);
+if(!customElements.get('cbbo-waste-collection-panel-v234')) customElements.define('cbbo-waste-collection-panel-v234',CBBOWasteCollectionPanel);

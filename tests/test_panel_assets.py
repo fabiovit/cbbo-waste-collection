@@ -7,10 +7,10 @@ INTEGRATION = ROOT / "custom_components" / "cbbo_waste_collection"
 
 def test_panel_assets_and_version():
     manifest = json.loads((INTEGRATION / "manifest.json").read_text())
-    assert manifest["version"] == "2.3.3"
+    assert manifest["version"] == "2.3.4"
     assert "frontend" in manifest["dependencies"]
     panel = (INTEGRATION / "frontend" / "cbbo-panel.js").read_text()
-    assert "cbbo-waste-collection-panel-v233" in panel
+    assert "cbbo-waste-collection-panel-v234" in panel
     assert "cbbo_waste_collection/panel_data" in panel
 
 
@@ -33,7 +33,7 @@ def test_fallback_parser_error_is_suppressed_by_backend():
 
 def test_hacs_info_is_current():
     info = (ROOT / "info.md").read_text()
-    assert "2.3.3" in info
+    assert "2.3.4" in info
     assert "La versione 2.0 supporta" not in info
     assert "Dashboard laterale" in info
 
@@ -50,7 +50,7 @@ def test_hamburger_opens_ha_menu_in_inverter_style_shell():
     assert ".menu-btn{display:flex}" in panel
 
 
-def test_v233_inverter_style_shell_and_views():
+def test_v234_inverter_style_shell_and_views():
     panel = (INTEGRATION / "frontend" / "cbbo-panel.js").read_text()
     assert 'class="topbar"' in panel
     assert 'class="nav-scroller"' in panel
@@ -63,4 +63,4 @@ def test_v233_inverter_style_shell_and_views():
     assert 'class="timeline"' in panel
     assert "supportView(e)" in panel
     backend = (INTEGRATION / "panel.py").read_text()
-    assert 'PANEL_COMPONENT = "cbbo-waste-collection-panel-v233"' in backend
+    assert 'PANEL_COMPONENT = "cbbo-waste-collection-panel-v234"' in backend
