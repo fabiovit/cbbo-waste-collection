@@ -14,3 +14,9 @@ def test_hacs_info_is_current():
     assert "2.4.1" in info
     assert "Italiano" in info
     assert "English" in info
+
+
+def test_language_navigation_links():
+    readme = (ROOT / "README.md").read_text()
+    assert "[🇬🇧 English](#-english)" in readme
+    assert "[🇮🇹 Italiano](#-italiano)" in readme
