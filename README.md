@@ -1,6 +1,6 @@
 # ♻️ CBBO Waste Collection
 
-[![Release](https://img.shields.io/badge/release-v2.4.0-blue)](https://github.com/fabiovit/cbbo-waste-collection/releases)
+[![Release](https://img.shields.io/badge/release-v2.4.1-blue)](https://github.com/fabiovit/cbbo-waste-collection/releases)
 [![HACS](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/)
 [![Validate](https://img.shields.io/github/actions/workflow/status/fabiovit/cbbo-waste-collection/validate.yml?branch=main&label=Validate)](https://github.com/fabiovit/cbbo-waste-collection/actions/workflows/validate.yml)
 [![Hassfest](https://img.shields.io/github/actions/workflow/status/fabiovit/cbbo-waste-collection/hassfest.yml?branch=main&label=Hassfest)](https://github.com/fabiovit/cbbo-waste-collection/actions/workflows/hassfest.yml)
@@ -13,6 +13,14 @@ Integrazione custom per Home Assistant dedicata ai calendari della raccolta diff
 > CBBO® e il relativo logo appartengono ai rispettivi proprietari. Questa è un'integrazione indipendente per Home Assistant e non è affiliata né approvata ufficialmente da CBBO.
 
 ## 🇮🇹 Italiano
+
+
+### 🔧 Correzioni v2.4.1
+
+- workflow GitHub `Validate` corretto per eseguire esclusivamente `tests/current`;
+- eliminata la dipendenza dai vecchi test legati alle singole versioni;
+- struttura README IT/EN uniformata;
+- nessuna modifica agli entity ID o ai calendari di raccolta.
 
 ### ✨ Funzioni principali
 
@@ -35,7 +43,7 @@ Mazzano supporta **Zona Nord** e **Zona Sud**.
 
 ### ♻️ Centro di raccolta
 
-La v2.4.0 aggiunge una pagina dedicata agli orari standard dei Centri di Raccolta CBBO.
+La v2.4.1 aggiunge una pagina dedicata agli orari standard dei Centri di Raccolta CBBO.
 
 La pagina mostra:
 
@@ -49,7 +57,7 @@ La pagina mostra:
 - avvisi per centri temporaneamente chiusi e centri alternativi;
 - link alla pagina ufficiale CBBO.
 
-Gli orari inclusi nella v2.4.0 sono stati verificati sulle pagine ufficiali CBBO il **19/08/2026**. Festività e chiusure straordinarie possono modificare gli orari standard: verificare sempre la pagina CBBO prima di partire.
+Gli orari inclusi nella v2.4.1 sono stati verificati sulle pagine ufficiali CBBO il **19/08/2026**. Festività e chiusure straordinarie possono modificare gli orari standard: verificare sempre la pagina CBBO prima di partire.
 
 ### 👶 Tessili sanitari
 
@@ -95,13 +103,21 @@ Se CBBO Waste Collection ti è utile puoi supportarne lo sviluppo:
 
 ---
 
-## English
+## 🇬🇧 English
 
-[Italiano](#-italiano) · **English**
+[🇮🇹 Italiano](#-italiano) · **🇬🇧 English**
 
 Custom Home Assistant integration for CBBO waste collection calendars and the **Waste Center** dashboard.
 
 > CBBO® and its logo belong to their respective owners. This is an independent Home Assistant integration and is not affiliated with or officially endorsed by CBBO.
+
+
+### 🔧 v2.4.1 fixes
+
+- GitHub `Validate` workflow now runs only `tests/current`;
+- old release-specific tests can no longer break scheduled validation;
+- README IT/EN structure aligned and cleaned up;
+- no changes to entity IDs or collection calendars.
 
 ### ✨ Main features
 
@@ -138,7 +154,7 @@ It shows:
 - notices for temporarily closed centers and alternative locations;
 - link to the official CBBO page.
 
-The opening hours bundled with v2.4.0 were verified against official CBBO pages on **2026-08-19**. Public holidays and exceptional closures may change standard hours, so always check the official CBBO page before travelling.
+The opening hours bundled with v2.4.1 were verified against official CBBO pages on **2026-08-19**. Public holidays and exceptional closures may change standard hours, so always check the official CBBO page before travelling.
 
 ### 👶 Sanitary waste
 

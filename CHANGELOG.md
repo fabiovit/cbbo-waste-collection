@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.4.1
+
+- Corretto il workflow GitHub Validate: ora esegue esclusivamente `tests/current`.
+- I vecchi test specifici delle release non possono più rompere i controlli schedulati.
+- Rimossi dal pacchetto i test versionati obsoleti.
+- Aggiornata e stabilizzata la suite test corrente.
+- README bilingue IT/EN rifinito nello stesso documento con sezioni complete e parallele.
+- Mantenuti gli screenshot reali GitHub.
+- Nessuna modifica ai calendari, entity ID o Config Entry esistenti.
+- Funzioni Centro di raccolta / Recycling Center della v2.4.0 mantenute invariate.
+
 ## 2.4.0
 
 - Aggiunta interfaccia Waste Center bilingue Italiano / English.

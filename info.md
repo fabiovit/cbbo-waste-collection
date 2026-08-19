@@ -1,8 +1,8 @@
-# ♻️ CBBO Waste Collection v2.4.0
+# ♻️ CBBO Waste Collection v2.4.1
 
 ## 🇮🇹 Italiano
 
-La v2.4.0 aggiunge:
+La v2.4.1 aggiunge:
 
 - interfaccia Waste Center bilingue **Italiano / English**;
 - nuova sezione **Centro di raccolta**;
@@ -19,7 +19,7 @@ Gli orari standard sono stati verificati sulle pagine ufficiali CBBO il 19/08/20
 
 ## 🇬🇧 English
 
-v2.4.0 adds:
+v2.4.1 adds:
 
 - bilingual **Italian / English** Waste Center;
 - new **Recycling Center** section;
@@ -38,3 +38,5 @@ Standard opening hours were verified against official CBBO pages on 2026-08-19.
 
 💡 Idea originale / Original idea: Riccardo Cosi  
 👨‍💻 Sviluppo e manutenzione / Development & maintenance: Fabio Vittori
+
+GitHub Validate now runs only the active `tests/current` suite.

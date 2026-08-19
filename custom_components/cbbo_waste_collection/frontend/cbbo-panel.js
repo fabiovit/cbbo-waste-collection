@@ -1,4 +1,4 @@
-const CBBO_PANEL_VERSION = "2.4.0";
+const CBBO_PANEL_VERSION = "2.4.1";
 
 const WASTE_META = {
   organic:   { icon:"mdi:food-apple-outline", it:"Frazione organica", en:"Organic waste", cls:"organic" },
@@ -300,7 +300,7 @@ main{width:min(1480px,100%);margin:auto;padding:22px 22px 0}.footer{width:min(14
 .center-footnote{margin:12px 2px 0;color:var(--secondary-text-color);font-size:11px;line-height:1.5}
 @media(max-width:760px){.center-hero{grid-template-columns:1fr}.center-status,.center-info{padding:19px;border-radius:21px}.center-kpis{grid-template-columns:1fr}.hours-row{grid-template-columns:1fr;gap:8px;padding:13px 16px}.lang-switch{margin-left:auto}}
 `;
-    this.shadowRoot.innerHTML=`<style>${sourceStyle}</style><div class="app"><header class="topbar"><div class="topbar-main"><button class="menu-btn" id="ha-menu-toggle" aria-label="Home Assistant menu" title="Home Assistant menu"><ha-icon icon="mdi:menu"></ha-icon></button><div class="app-identity"><div class="app-icon"><img src="/cbbo_waste_collection/icon.png" alt=""></div><div class="brand"><div class="brand-line"><div class="brand-title">CBBO Waste Collection</div><span class="version-badge">2.4.0</span></div><div class="brand-subtitle" id="brand-subtitle">Waste Center</div></div></div><div class="lang-switch" title="${this.t('language')}"><button class="lang-btn ${lang==='it'?'active':''}" data-lang="it">IT</button><button class="lang-btn ${lang==='en'?'active':''}" data-lang="en">EN</button></div></div><div class="nav-scroller"><nav class="nav tabs">${this.tab('home','mdi:view-dashboard',this.t('overview'))}${this.tab('calendar','mdi:calendar-month',this.t('calendar'))}${this.tab('place','mdi:map-marker-outline',this.t('municipality'))}${this.tab('center','mdi:recycle-variant',this.t('center'))}${this.tab('diag','mdi:tools',this.t('diagnostics'))}<button class="nav-btn support-nav" id="support-nav" type="button"><ha-icon icon="mdi:coffee-outline"></ha-icon><span>${this.t('support')}</span></button></nav></div></header><main id="view-content"></main><div class="footer">CBBO Waste Collection · v2.4.0 · Riccardo Cosi · Fabio Vittori</div></div>`;
+    this.shadowRoot.innerHTML=`<style>${sourceStyle}</style><div class="app"><header class="topbar"><div class="topbar-main"><button class="menu-btn" id="ha-menu-toggle" aria-label="Home Assistant menu" title="Home Assistant menu"><ha-icon icon="mdi:menu"></ha-icon></button><div class="app-identity"><div class="app-icon"><img src="/cbbo_waste_collection/icon.png" alt=""></div><div class="brand"><div class="brand-line"><div class="brand-title">CBBO Waste Collection</div><span class="version-badge">2.4.1</span></div><div class="brand-subtitle" id="brand-subtitle">Waste Center</div></div></div><div class="lang-switch" title="${this.t('language')}"><button class="lang-btn ${lang==='it'?'active':''}" data-lang="it">IT</button><button class="lang-btn ${lang==='en'?'active':''}" data-lang="en">EN</button></div></div><div class="nav-scroller"><nav class="nav tabs">${this.tab('home','mdi:view-dashboard',this.t('overview'))}${this.tab('calendar','mdi:calendar-month',this.t('calendar'))}${this.tab('place','mdi:map-marker-outline',this.t('municipality'))}${this.tab('center','mdi:recycle-variant',this.t('center'))}${this.tab('diag','mdi:tools',this.t('diagnostics'))}<button class="nav-btn support-nav" id="support-nav" type="button"><ha-icon icon="mdi:coffee-outline"></ha-icon><span>${this.t('support')}</span></button></nav></div></header><main id="view-content"></main><div class="footer">CBBO Waste Collection · v2.4.1 · Riccardo Cosi · Fabio Vittori</div></div>`;
     this._shellMounted=true;this.bindShell();this.renderMain();
   }
   bindShell(){
@@ -415,4 +415,4 @@ main{width:min(1480px,100%);margin:auto;padding:22px 22px 0}.footer{width:min(14
 
   }
 }
-if(!customElements.get('cbbo-waste-collection-panel-v240')) customElements.define('cbbo-waste-collection-panel-v240',CBBOWasteCollectionPanel);
+if(!customElements.get('cbbo-waste-collection-panel-v241')) customElements.define('cbbo-waste-collection-panel-v241',CBBOWasteCollectionPanel);
