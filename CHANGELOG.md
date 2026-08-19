@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.4.0
+
+- Aggiunta interfaccia Waste Center bilingue Italiano / English.
+- Aggiunta nuova sezione Centro di raccolta / Recycling Center.
+- Integrati gli orari standard dei Centri di Raccolta per tutti i 18 Comuni supportati.
+- Stato dinamico Aperto ora / Chiuso, orari di oggi, prossima apertura e settimana completa.
+- Gestione automatica degli orari stagionali di Barbariga e Mazzano.
+- Gestiti gli avvisi di centro temporaneamente chiuso per Acquafredda e Nuvolento.
+- Aggiunti indirizzo, informazioni di accesso e link alla fonte ufficiale CBBO.
+- Migliorata la dicitura Tessili sanitari: pannolini e pannoloni / sanitary waste.
+- README completamente bilingue IT/EN con screenshot reali.
+- Suite GitHub resa stabile: Validate esegue solo tests/current per evitare vecchi test di release rimasti nel repository.
+- Nessuna modifica agli entity ID esistenti o ai calendari di raccolta.
+
 ## 2.3.5
 
 - Corretto definitivamente il Location Picker nella sezione Comune.

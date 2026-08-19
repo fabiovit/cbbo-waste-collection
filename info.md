@@ -1,25 +1,40 @@
-# ♻️ CBBO Waste Collection
+# ♻️ CBBO Waste Collection v2.4.0
 
-Calendari della raccolta differenziata CBBO in Home Assistant.
+## 🇮🇹 Italiano
 
-La versione 2.3.5 supporta tutti i 18 Comuni CBBO con sorgente online, cache e profili locali 2026 di fallback.
+La v2.4.0 aggiunge:
 
-Consulta il README del repository per installazione, configurazione e dettagli sulle sorgenti dati.
+- interfaccia Waste Center bilingue **Italiano / English**;
+- nuova sezione **Centro di raccolta**;
+- stato Aperto ora / Chiuso;
+- orari di oggi e settimana completa;
+- prossima apertura;
+- gestione automatica degli orari stagionali;
+- indirizzo e informazioni di accesso;
+- avvisi per centri temporaneamente chiusi;
+- dicitura più chiara **Tessili sanitari (pannolini e pannoloni)**;
+- README GitHub completamente bilingue con screenshot reali.
 
+Gli orari standard sono stati verificati sulle pagine ufficiali CBBO il 19/08/2026.
 
-## Dashboard laterale
+## 🇬🇧 English
 
-Dalla versione **2.3.5** l'integrazione aggiunge una voce **CBBO Waste Collection**
-nella barra laterale di Home Assistant con raccolte di oggi e domani, prossimo
-ritiro, promemoria, prossime raccolte, sorgente dati e aggiornamento manuale.
+v2.4.0 adds:
 
-Quando una cache o un calendario locale 2026 fornisce correttamente i dati,
-un precedente tentativo di lettura online fallito non viene mostrato come errore attivo.
+- bilingual **Italian / English** Waste Center;
+- new **Recycling Center** section;
+- Open now / Closed status;
+- today's hours and full weekly schedule;
+- next opening;
+- automatic seasonal schedule handling;
+- address and access information;
+- notices for temporarily closed centers;
+- clearer **Sanitary waste (diapers & incontinence products)** wording;
+- fully bilingual GitHub README with real screenshots.
 
-La dashboard laterale include un pulsante per tornare rapidamente alla Dashboard principale di Home Assistant.
+Standard opening hours were verified against official CBBO pages on 2026-08-19.
 
-La versione 2.3.5 introduce una testata compatta e integrata con Home Assistant, nello stesso stile visuale di PawBook.
+☕ https://ko-fi.com/fabvittori
 
-La versione 2.3.5 introduce il nuovo Waste Center con navigazione in stile Inverter Dashboard.
-
-La v2.3.5 migliora la grafica della Waste Center con icone dei rifiuti più grandi e una gerarchia visiva più marcata.
+💡 Idea originale / Original idea: Riccardo Cosi  
+👨‍💻 Sviluppo e manutenzione / Development & maintenance: Fabio Vittori

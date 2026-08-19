@@ -12,8 +12,9 @@ from homeassistant.components.http import StaticPathConfig
 from homeassistant.core import HomeAssistant, callback
 
 from .const import DOMAIN, MUNICIPALITY_ZONES, ZONE_DEFAULT
+from .recycling_centers import RECYCLING_CENTERS, RECYCLING_CENTERS_VERIFIED
 
-PANEL_COMPONENT = "cbbo-waste-collection-panel-v235"
+PANEL_COMPONENT = "cbbo-waste-collection-panel-v240"
 PANEL_URL_PATH = "cbbo-waste-collection"
 PANEL_JS_URL = "/cbbo_waste_collection/cbbo-panel.js"
 PANEL_ICON_URL = "/cbbo_waste_collection/icon.png"
@@ -101,6 +102,7 @@ def _entry_payload(entry: Any) -> dict[str, Any] | None:
         ),
         "cache_used": data.get("cache_used", False),
         "upcoming": upcoming,
+        "recycling_center": RECYCLING_CENTERS.get(municipality),
     }
 
 
@@ -121,9 +123,10 @@ def websocket_panel_data(
     connection.send_result(
         msg["id"],
         {
-            "version": "2.3.5",
+            "version": "2.4.0",
             "entries": entries,
             "ko_fi": "https://ko-fi.com/fabvittori",
+            "recycling_centers_verified": RECYCLING_CENTERS_VERIFIED,
         },
     )
 
@@ -154,6 +157,6 @@ async def async_setup_panel(hass: HomeAssistant) -> None:
             webcomponent_name=PANEL_COMPONENT,
             sidebar_title="CBBO Waste Collection",
             sidebar_icon="mdi:recycle",
-            module_url=f"{PANEL_JS_URL}?v=2.3.5-20260812",
+            module_url=f"{PANEL_JS_URL}?v=2.4.0-20260819",
             require_admin=False,
         )

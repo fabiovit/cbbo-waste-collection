@@ -1,198 +1,183 @@
 # ♻️ CBBO Waste Collection
 
-[![Release](https://img.shields.io/badge/release-v2.3.5-blue)](https://github.com/fabiovit/cbbo-waste-collection/releases)
+[![Release](https://img.shields.io/badge/release-v2.4.0-blue)](https://github.com/fabiovit/cbbo-waste-collection/releases)
 [![HACS](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/)
 [![Validate](https://img.shields.io/github/actions/workflow/status/fabiovit/cbbo-waste-collection/validate.yml?branch=main&label=Validate)](https://github.com/fabiovit/cbbo-waste-collection/actions/workflows/validate.yml)
 [![Hassfest](https://img.shields.io/github/actions/workflow/status/fabiovit/cbbo-waste-collection/hassfest.yml?branch=main&label=Hassfest)](https://github.com/fabiovit/cbbo-waste-collection/actions/workflows/hassfest.yml)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-Custom integration for Home Assistant that exposes CBBO waste collection calendars as sensors, binary sensors and a calendar entity.
+**Italiano** · [English](#english)
 
-> **CBBO® e il relativo logo sono marchi dei rispettivi proprietari. Questa è un'integrazione indipendente per Home Assistant, non affiliata, sponsorizzata né approvata ufficialmente da CBBO.**
+Integrazione custom per Home Assistant dedicata ai calendari della raccolta differenziata CBBO e alla nuova **Waste Center**.
 
-## Versione 2.3.5
+> CBBO® e il relativo logo appartengono ai rispettivi proprietari. Questa è un'integrazione indipendente per Home Assistant e non è affiliata né approvata ufficialmente da CBBO.
 
-La versione **2.3.0** rinnova completamente l'esperienza della dashboard CBBO in Home Assistant.
+## 🇮🇹 Italiano
 
-La nuova **Waste Center** usa come riferimento strutturale e responsive la Inverter Dashboard v1.1.4: testata compatta, navigazione interna orizzontale, layout quasi a tutta larghezza e comportamento mobile più naturale.
+### ✨ Funzioni principali
 
-### Novità principali
+- calendario raccolta differenziata;
+- sensori Oggi, Domani e Prossimo ritiro;
+- promemoria **“Stasera si espone”**;
+- supporto a più Comuni / zone configurati;
+- pannello Waste Center responsive desktop/mobile;
+- interfaccia **Italiano / English**;
+- nuova pagina **Centro di raccolta** con stato aperto/chiuso, orari di oggi, prossima apertura, settimana completa, indirizzo e modalità di accesso;
+- gestione automatica degli orari stagionali per i Comuni che li prevedono;
+- collegamento diretto alla pagina CBBO ufficiale;
+- diagnostica, cache e fallback locale dei calendari.
 
-- nuova testata applicativa compatta e sticky;
-- nuovo menu interno:
-  - Panoramica
-  - Calendario
-  - Comune
-  - Diagnostica
-  - Supporta il progetto
-- nuova Panoramica con esposizione serale, oggi/domani, prossimo ritiro e giorni mancanti;
-- timeline visiva delle prossime raccolte;
-- nuova vista Calendario;
-- nuova sezione Comune / zona;
-- nuova sezione Diagnostica;
-- sezione **Supporta il progetto** con Ko-fi;
-- mantenuti tutti i 18 Comuni CBBO e le zone Nord/Sud di Mazzano;
-- nessuna modifica agli entity ID esistenti;
-- HACS Action, Hassfest e controlli automatici di coerenza tag/versione.
+### 🏘️ Comuni supportati
 
+Acquafredda, Barbariga, Calvisano, Capriano del Colle, Carpenedolo, Castenedolo, Flero, Ghedi, Isorella, Mazzano, Montichiari, Montirone, Nuvolento, Nuvolera, Poncarale, Remedello, San Zeno Naviglio e Visano.
 
-## Funzioni
+Mazzano supporta **Zona Nord** e **Zona Sud**.
 
-- configurazione tramite Config Flow;
-- tutti i 18 Comuni CBBO;
-- Zona Nord/Zona Sud per Mazzano;
-- raccolte di oggi e domani;
-- prossimo ritiro e giorni mancanti;
-- binary sensor **Ritiro domani**;
-- binary sensor **Esporre stasera**;
-- calendario Home Assistant con eventi giornalieri;
-- aggiornamento automatico ogni 6 ore;
-- cache locale dell'ultimo calendario valido;
-- fallback 2026 specifico per Comune;
-- sensore **Sorgente dati**;
-- sensore **Ultimo aggiornamento**;
-- diagnostica scaricabile da Home Assistant;
-- individuazione dell'Ecocalendario PDF pubblicato da CBBO;
-- servizi `refresh` e `clear_cache`;
-- traduzioni italiano e inglese;
-- branding locale per Home Assistant 2026.3+.
+### ♻️ Centro di raccolta
 
-## Comuni supportati
+La v2.4.0 aggiunge una pagina dedicata agli orari standard dei Centri di Raccolta CBBO.
 
-- Acquafredda
-- Barbariga
-- Calvisano
-- Capriano del Colle
-- Carpenedolo
-- Castenedolo
-- Flero
-- Ghedi
-- Isorella
-- Mazzano
-- Montichiari
-- Montirone
-- Nuvolento
-- Nuvolera
-- Poncarale
-- Remedello
-- San Zeno Naviglio
-- Visano
+La pagina mostra:
 
-> Barbariga è gestito da CBBO dal 1° giugno 2026; il profilo locale parte da tale data.
+- **Aperto ora / Chiuso**;
+- orari della giornata;
+- prossima apertura;
+- orari settimanali;
+- periodo stagionale attivo;
+- indirizzo;
+- informazioni di accesso quando disponibili;
+- avvisi per centri temporaneamente chiusi e centri alternativi;
+- link alla pagina ufficiale CBBO.
 
-## Installazione con HACS
+Gli orari inclusi nella v2.4.0 sono stati verificati sulle pagine ufficiali CBBO il **19/08/2026**. Festività e chiusure straordinarie possono modificare gli orari standard: verificare sempre la pagina CBBO prima di partire.
 
-1. Apri **HACS → Integrazioni → Repository personalizzati**.
-2. Inserisci `https://github.com/fabiovit/cbbo-waste-collection` e scegli **Integration**.
-3. Scarica **CBBO Waste Collection**.
-4. Riavvia Home Assistant.
-5. Vai in **Impostazioni → Dispositivi e servizi → Aggiungi integrazione**.
-6. Cerca **CBBO Waste Collection** e scegli il Comune.
-7. Per Mazzano scegli anche **Zona Nord** o **Zona Sud**.
+### 👶 Tessili sanitari
 
-## Entità
+Nella Waste Center la voce viene resa più esplicita:
 
-Home Assistant genera gli entity ID usando il nome del dispositivo. Per Mazzano Zona Sud, ad esempio:
+**Tessili sanitari (pannolini e pannoloni)**.
 
-```text
-sensor.differenziata_mazzano_zona_sud_rifiuti_oggi
-sensor.differenziata_mazzano_zona_sud_rifiuti_domani
-sensor.differenziata_mazzano_zona_sud_prossimo_ritiro
-sensor.differenziata_mazzano_zona_sud_giorni_al_prossimo_ritiro
-sensor.differenziata_mazzano_zona_sud_ultimo_aggiornamento
-sensor.differenziata_mazzano_zona_sud_sorgente_dati
-binary_sensor.differenziata_mazzano_zona_sud_ritiro_domani
-binary_sensor.differenziata_mazzano_zona_sud_esporre_stasera
-calendar.differenziata_mazzano_zona_sud_calendario_raccolta
-```
+In inglese:
 
-## Sorgente dati
+**Sanitary waste (diapers & incontinence products)**.
 
-Il sensore **Sorgente dati** consente di capire immediatamente quali dati sono in uso:
+### 📸 Screenshot
 
-- `online`: calendario letto e riconosciuto dal sito CBBO;
-- `cache`: ultimo calendario online valido salvato localmente;
-- `memory`: ultimo dataset valido mantenuto in memoria durante un errore temporaneo;
-- `bundled_<comune>_2026`: profilo 2026 integrato nell'integrazione per quel Comune.
+#### Panoramica
+![CBBO Waste Collection - Panoramica](docs/screenshots/overview.png)
 
-Esempi:
+#### Comune
+![CBBO Waste Collection - Comune](docs/screenshots/municipality.png)
 
-```text
-bundled_castenedolo_2026
-bundled_ghedi_2026
-bundled_mazzano_2026
-```
+### 📦 Installazione tramite HACS
 
-La sorgente online ha sempre priorità sul fallback integrato.
+1. Apri **HACS**.
+2. Vai in **Integrazioni**.
+3. Aggiungi questo repository come **Custom repository**.
+4. Categoria: **Integration**.
+5. Installa **CBBO Waste Collection**.
+6. Riavvia Home Assistant.
+7. Vai in **Impostazioni → Dispositivi e servizi → Aggiungi integrazione**.
+8. Cerca **CBBO Waste Collection**.
 
-## Ecocalendario PDF
+Repository:
 
-Quando la pagina del Comune contiene il collegamento all'Ecocalendario ufficiale, l'integrazione lo rileva e lo riporta nella diagnostica (`ecocalendar_pdf`). Questo è utile per confrontare rapidamente eventuali variazioni straordinarie.
+`https://github.com/fabiovit/cbbo-waste-collection`
 
-## Servizi
+### ☕ Supporta il progetto
 
-### `cbbo_waste_collection.refresh`
-Forza l'aggiornamento di tutte le configurazioni.
+Se CBBO Waste Collection ti è utile puoi supportarne lo sviluppo:
 
-### `cbbo_waste_collection.clear_cache`
-Elimina la cache locale e forza un nuovo tentativo di download. Non elimina il profilo locale 2026 incluso nell'integrazione.
+`https://ko-fi.com/fabvittori`
 
-## Audit dei profili 2026
+💡 **Idea originale:** Riccardo Cosi  
+👨‍💻 **Sviluppo e manutenzione:** Fabio Vittori
 
-Dalla versione **2.0.1** i profili locali sono accompagnati da test di regressione Comune per Comune. Il file [`AUDIT_2026.md`](AUDIT_2026.md) riporta la matrice di controllo usata per il 7 agosto 2026 e le correzioni effettuate dopo la 2.0.0.
+---
 
-## Note sui calendari
+## English
 
-I profili integrati rappresentano i calendari e gli schemi di raccolta 2026 pubblicati da CBBO e servono da fallback quando la pagina online non è interpretabile dal client Home Assistant. **Le variazioni eccezionali legate a festività, recuperi o comunicazioni straordinarie possono essere aggiornate da CBBO durante l'anno:** quando disponibili, i dati online hanno quindi sempre la precedenza.
+[Italiano](#-italiano) · **English**
 
-Se rilevi una data errata, apri una issue indicando Comune, data, raccolta attesa, raccolta mostrata e diagnostica dell'integrazione.
+Custom Home Assistant integration for CBBO waste collection calendars and the **Waste Center** dashboard.
 
-## Icona e identità visiva
+> CBBO® and its logo belong to their respective owners. This is an independent Home Assistant integration and is not affiliated with or officially endorsed by CBBO.
 
-L'integrazione include direttamente icona e logo locali. L'icona del progetto utilizza il simbolo universale del riciclo ♻️ e non il logo ufficiale CBBO.
+### ✨ Main features
 
+- waste collection calendar;
+- Today, Tomorrow and Next collection sensors;
+- **“Put it out tonight”** reminder;
+- support for multiple configured municipalities / zones;
+- responsive Waste Center panel for desktop and mobile;
+- **Italian / English** interface;
+- new **Recycling Center** page with open/closed status, today's hours, next opening, weekly schedule, address and access information;
+- automatic seasonal schedule selection where applicable;
+- direct link to the official CBBO municipality page;
+- diagnostics, cache and bundled calendar fallback.
 
-## 🖥️ Dashboard dedicata nella barra laterale
+### 🏘️ Supported municipalities
 
-Dalla versione **2.3.0**, CBBO Waste Collection aggiunge automaticamente una voce
-**♻️ CBBO Waste Collection** nella barra laterale di Home Assistant.
+Acquafredda, Barbariga, Calvisano, Capriano del Colle, Carpenedolo, Castenedolo, Flero, Ghedi, Isorella, Mazzano, Montichiari, Montirone, Nuvolento, Nuvolera, Poncarale, Remedello, San Zeno Naviglio and Visano.
 
-La dashboard mostra rifiuti di oggi e domani, prossimo ritiro, giorni mancanti,
-promemoria serale, prossime raccolte, sorgente dati e ultimo aggiornamento.
-Con più Comuni configurati compare un selettore Comune/zona.
+Mazzano supports **North Zone** and **South Zone**.
 
-Sono inclusi anche aggiornamento manuale e collegamenti rapidi a CBBO e Ko-fi.
-Non è richiesta alcuna configurazione Lovelace aggiuntiva.
+### ♻️ Recycling Center
 
-## ☕ Supporta il progetto
+Version 2.4.0 adds a dedicated page for CBBO recycling-center standard opening hours.
 
-CBBO Waste Collection è gratuito e open source.
+It shows:
 
-Se trovi utile l'integrazione e vuoi contribuire al suo sviluppo e alla sua manutenzione, puoi offrirmi un caffè su Ko-fi:
+- **Open now / Closed**;
+- today's hours;
+- next opening;
+- full weekly schedule;
+- active seasonal period;
+- address;
+- access requirements when available;
+- notices for temporarily closed centers and alternative locations;
+- link to the official CBBO page.
 
-https://ko-fi.com/fabvittori
+The opening hours bundled with v2.4.0 were verified against official CBBO pages on **2026-08-19**. Public holidays and exceptional closures may change standard hours, so always check the official CBBO page before travelling.
 
-## Credits
+### 👶 Sanitary waste
 
-- 💡 Idea originale: Riccardo Cosi
-- 👨‍💻 Sviluppo e manutenzione: Fabio Vittori
+The Waste Center uses the clearer label:
 
-Su mobile la dashboard laterale include un pulsante hamburger `mdi:menu` in alto a sinistra per aprire direttamente il menu laterale di Home Assistant.
+**Sanitary waste (diapers & incontinence products)**.
 
+Italian:
 
-## ♻️ Waste Center 2.3
+**Tessili sanitari (pannolini e pannoloni)**.
 
-La dashboard CBBO adotta la stessa shell di navigazione di Inverter Dashboard v1.1.4: testata sticky compatta, menu interno orizzontale e contenuto responsive a larghezza piena. Le viste Panoramica, Calendario, Comune e Diagnostica sostituiscono la precedente pagina a blocchi; “Supporta il progetto” resta sempre disponibile dal menu.
+### 📸 Screenshots
 
+#### Overview
+![CBBO Waste Collection - Overview](docs/screenshots/overview.png)
 
-## ✅ Validazione e release
+#### Municipality
+![CBBO Waste Collection - Municipality](docs/screenshots/municipality.png)
 
-Il repository include controlli automatici HACS, Hassfest, test Python e verifica della coerenza tra tag GitHub e versione del manifest. Per ogni release pubblica usare una GitHub Release completa con tag `vX.Y.Z`, non soltanto un tag.
+### 📦 HACS installation
 
+1. Open **HACS**.
+2. Go to **Integrations**.
+3. Add this repository as a **Custom repository**.
+4. Category: **Integration**.
+5. Install **CBBO Waste Collection**.
+6. Restart Home Assistant.
+7. Go to **Settings → Devices & services → Add integration**.
+8. Search for **CBBO Waste Collection**.
 
-## 🎨 Novità grafiche 2.3.5
+Repository:
 
-La v2.3.5 migliora l'interfaccia della Waste Center con icone dei rifiuti molto più grandi,
-badge più leggibili, hero di esposizione più evidente e una timeline più visuale.
+`https://github.com/fabiovit/cbbo-waste-collection`
 
-La logica dei calendari e tutte le entità Home Assistant restano invariate.
+### ☕ Support the project
+
+If CBBO Waste Collection is useful to you, you can support its development:
+
+`https://ko-fi.com/fabvittori`
+
+💡 **Original idea:** Riccardo Cosi  
+👨‍💻 **Development & maintenance:** Fabio Vittori
