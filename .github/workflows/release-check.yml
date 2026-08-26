@@ -18,8 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Resolve release version
+      - name: Check release version
         shell: bash
         run: |
           MANIFEST_VERSION="$(python -c 'import json; print(json.load(open("custom_components/cbbo_waste_collection/manifest.json"))["version"])')"
