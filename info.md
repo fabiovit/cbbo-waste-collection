@@ -1,8 +1,8 @@
-# ♻️ CBBO Waste Collection v2.4.1
+# ♻️ CBBO Waste Collection v3.0.0
 
 ## 🇮🇹 Italiano
 
-La v2.4.1 aggiunge:
+La v3.0.0 include:
 
 - interfaccia Waste Center bilingue **Italiano / English**;
 - nuova sezione **Centro di raccolta**;
@@ -19,7 +19,7 @@ Gli orari standard sono stati verificati sulle pagine ufficiali CBBO il 19/08/20
 
 ## 🇬🇧 English
 
-v2.4.1 adds:
+v3.0.0 includes:
 
 - bilingual **Italian / English** Waste Center;
 - new **Recycling Center** section;
@@ -39,4 +39,12 @@ Standard opening hours were verified against official CBBO pages on 2026-08-19.
 💡 Idea originale / Original idea: Riccardo Cosi  
 👨‍💻 Sviluppo e manutenzione / Development & maintenance: Fabio Vittori
 
-GitHub Validate now runs only the active `tests/current` suite.
+GitHub Validate runs the clean permanent `tests` suite.
+
+## 3.0
+
+Release di consolidamento con refactoring interno, suite test pulita e workflow GitHub semplificati. Nessuna modifica agli entity ID o alle configurazioni esistenti.
+
+## 3.0 English
+
+Consolidation release with internal refactoring, a clean test suite and simplified GitHub workflows. No changes to entity IDs or existing configurations.

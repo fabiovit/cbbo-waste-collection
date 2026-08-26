@@ -1,4 +1,4 @@
-const CBBO_PANEL_VERSION = "2.4.1";
+const CBBO_PANEL_VERSION = "3.0.0";
 
 const WASTE_META = {
   organic:   { icon:"mdi:food-apple-outline", it:"Frazione organica", en:"Organic waste", cls:"organic" },
@@ -79,97 +79,7 @@ const I18N = {
   }
 };
 
-class CBBOWasteCollectionPanel extends HTMLElement {
-  constructor(){
-    super();
-    this.attachShadow({mode:'open'});
-    this._hass=null;
-    this._data=null;
-    this._loading=false;
-    this._lastLoad=0;
-    this._view=localStorage.getItem('cbbo-panel-view')||'home';
-    this._selectedEntryId=localStorage.getItem('cbbo-panel-entry')||null;
-    this._shellMounted=false;
-    this._refreshTimer=null;
-    this._locationPickerOpen=false;
-    const storedLang=localStorage.getItem('cbbo-panel-lang');
-    this._lang=storedLang||null;
-  }
-  lang(){
-    if(this._lang)return this._lang;
-    const haLang=(this._hass?.language||this._hass?.locale?.language||'it').toLowerCase();
-    return haLang.startsWith('en')?'en':'it';
-  }
-  setLanguage(lang){
-    this._lang=lang==='en'?'en':'it';
-    localStorage.setItem('cbbo-panel-lang',this._lang);
-    this.renderShell();
-  }
-  t(key,vars={}){
-    let value=I18N[this.lang()]?.[key]??I18N.it[key]??key;
-    Object.entries(vars).forEach(([k,v])=>value=value.replaceAll(`{${k}}`,String(v)));
-    return value;
-  }
-  locale(){return this.lang()==='en'?'en-GB':'it-IT'}
-  wasteLabel(type,fallback=''){
-    const meta=WASTE_META[type];
-    return meta?.[this.lang()]||fallback||type;
-  }
-  dayLabels(){return [this.t('mon'),this.t('tue'),this.t('wed'),this.t('thu'),this.t('fri'),this.t('sat'),this.t('sun')]}
-  set hass(v){
-    this._hass=v;
-    if(!this._shellMounted) this.renderShell();
-    if(!this._data || Date.now()-this._lastLoad>30000){
-      clearTimeout(this._refreshTimer);
-      this._refreshTimer=setTimeout(()=>this.loadData(),30);
-    }else if(!(this._view==='place' && this._locationPickerOpen)){
-      this.renderMain();
-    }
-  }
-  get hass(){return this._hass}
-  set narrow(v){this._narrow=v}
-  set route(v){this._route=v}
-  set panel(v){this._panel=v}
-  connectedCallback(){ if(!this._shellMounted) this.renderShell(); if(this._hass) this.loadData(); }
-
-  async loadData(force=false){
-    if(!this._hass||this._loading) return;
-    if(!force&&this._data&&Date.now()-this._lastLoad<30000){if(!(this._view==='place'&&this._locationPickerOpen))this.renderMain();return}
-    this._loading=true; this.renderMain();
-    try{
-      this._data=await this._hass.callWS({type:'cbbo_waste_collection/panel_data'});
-      this._lastLoad=Date.now();
-      const entries=this._data?.entries||[];
-      if(!entries.some(x=>x.entry_id===this._selectedEntryId)) this._selectedEntryId=entries[0]?.entry_id||null;
-    }catch(err){ console.error('CBBO panel',err); this._data={entries:[],error:true}; }
-    finally{this._loading=false;this.renderMain();}
-  }
-  async refresh(){
-    if(!this._hass||this._loading)return;
-    this._loading=true;this.renderMain();
-    try{
-      await this._hass.callService('cbbo_waste_collection','refresh',{});
-      await new Promise(r=>setTimeout(r,900));
-      this._lastLoad=0;await this.loadData(true);
-    }catch(e){console.error(e);this._loading=false;this.renderMain()}
-  }
-  entry(){const e=this._data?.entries||[];return e.find(x=>x.entry_id===this._selectedEntryId)||e[0]||null}
-  entryName(e=this.entry()){if(!e)return 'CBBO';return e.zone_name?`${e.municipality_name} · ${e.zone_name}`:e.municipality_name}
-  fmtDate(v,weekday=true){if(!v)return '—';const d=new Date(`${v}T12:00:00`);return new Intl.DateTimeFormat(this.locale(),{weekday:weekday?'long':undefined,day:'numeric',month:'long'}).format(d)}
-  fmtStamp(v){if(!v)return '—';const d=new Date(v);return Number.isNaN(d.getTime())?v:new Intl.DateTimeFormat(this.locale(),{dateStyle:'short',timeStyle:'short'}).format(d)}
-  text(c){return c?.waste_types?.length?c.waste_types.map((t,i)=>this.wasteLabel(t,c?.labels?.[i]||t)).join(' + '):this.t('noCollection')}
-  wasteItems(c){return (c?.waste_types||[]).map((t,i)=>{const m=WASTE_META[t]||{icon:'mdi:recycle',cls:'other'};return `<span class="waste-token ${m.cls}"><ha-icon icon="${m.icon}"></ha-icon><b>${this.wasteLabel(t,c?.labels?.[i]||t)}</b></span>`}).join('')}
-  dotItems(c){return (c?.waste_types||[]).map(t=>{const m=WASTE_META[t]||{icon:'mdi:recycle',cls:'other'};return `<span class="waste-dot ${m.cls}"><ha-icon icon="${m.icon}"></ha-icon></span>`}).join('')||'<span class="waste-dot empty"><ha-icon icon="mdi:minus"></ha-icon></span>'}
-  tab(view,icon,label){return `<button class="nav-btn tab ${this._view===view?'active':''}" data-view="${view}" type="button"><ha-icon icon="${icon}"></ha-icon><span>${label}</span></button>`}
-  sourceLabel(e){return e?.source_status==='fallback'?this.t('localCalendar'):e?.source_status==='cache'?this.t('cachedData'):this.t('onlineData')}
-
-  renderShell(){
-    const lang=this.lang();
-    this.shadowRoot.innerHTML=`<style>
-${this.shadowRoot?.querySelector('style')?.textContent||''}
-</style>`;
-    // Rebuild using the stylesheet embedded in source.
-    const sourceStyle = `
+const PANEL_STYLES = `
 :host{display:block;min-height:100vh;background:var(--primary-background-color);color:var(--primary-text-color);font-family:var(--paper-font-body1_-_font-family,Roboto,Arial,sans-serif);--cbbo:#68a82d;--cbbo-deep:#4d8720;--paper:#4f9ad5;--plastic:#eabf2d;--organic:#72b743;--glass:#49abc5;--residual:#6d7278;--sanitary:#8f7ad6;--green:#4ba85c;--orange:#df7b34}*{box-sizing:border-box}button,select{font:inherit}.app{width:100%;min-height:100vh;padding:0 0 56px}.topbar{--casa-accent:var(--cbbo);position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--primary-background-color) 96%,transparent);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid color-mix(in srgb,var(--divider-color) 78%,transparent);box-shadow:0 10px 28px color-mix(in srgb,#000 4%,transparent)}.topbar-main{max-width:1480px;margin:auto;min-height:72px;padding:15px 18px 9px;display:flex;align-items:center;gap:12px}.menu-btn{display:none;border:0;background:transparent;color:var(--primary-text-color);width:42px;height:42px;border-radius:13px;align-items:center;justify-content:center;cursor:pointer;flex:none}.menu-btn ha-icon{--mdc-icon-size:27px}.menu-btn:active{background:var(--secondary-background-color)}.app-identity{display:flex;align-items:center;gap:11px;min-width:0}.app-icon{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;flex:none;border:1px solid color-mix(in srgb,var(--cbbo) 30%,var(--divider-color));background:color-mix(in srgb,var(--cbbo) 9%,var(--card-background-color));overflow:hidden}.app-icon img{width:34px;height:34px;object-fit:contain}.brand{min-width:0}.brand-line{display:flex;align-items:center;gap:8px;min-width:0}.brand-title{font-size:21px;line-height:1.05;font-weight:850;letter-spacing:-.025em}.version-badge{display:inline-flex;align-items:center;justify-content:center;padding:3px 7px;border-radius:999px;border:1px solid color-mix(in srgb,var(--cbbo) 30%,var(--divider-color));background:color-mix(in srgb,var(--cbbo) 9%,var(--card-background-color));color:var(--cbbo-deep);font-size:9px;font-weight:900;line-height:1;white-space:nowrap}.brand-subtitle{font-size:11px;color:var(--secondary-text-color);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.nav-scroller{max-width:1480px;margin:auto;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-x;padding:0 18px}.nav-scroller::-webkit-scrollbar{display:none}.nav{display:flex;align-items:stretch;gap:22px;width:max-content;min-width:max-content}.nav-btn{position:relative;border:0;background:transparent;color:var(--secondary-text-color);padding:10px 1px 12px;min-height:44px;display:flex;align-items:center;gap:7px;cursor:pointer;white-space:nowrap;font-size:12px;font-weight:720;transition:color .16s ease,transform .12s ease;-webkit-tap-highlight-color:transparent;user-select:none}.nav-btn::after{content:"";position:absolute;left:50%;right:50%;bottom:0;height:3px;border-radius:3px 3px 0 0;background:var(--cbbo);opacity:0;transition:left .18s ease,right .18s ease,opacity .18s ease}.nav-btn ha-icon{--mdc-icon-size:19px;opacity:.78}.nav-btn:active{transform:translateY(1px)}.nav-btn.active{color:var(--cbbo-deep);font-weight:850}.nav-btn.active ha-icon{opacity:1;color:var(--cbbo)}.nav-btn.active::after{left:0;right:0;opacity:1}.support-nav{color:color-mix(in srgb,var(--cbbo) 85%,var(--primary-text-color))}
 main{width:min(1480px,100%);margin:auto;padding:22px 22px 0}.footer{width:min(1480px,100%);margin:34px auto 0;padding:0 22px;text-align:center;color:var(--secondary-text-color);font-size:10px}.eyebrow{font-size:10px;font-weight:850;letter-spacing:.18em;text-transform:uppercase;color:var(--secondary-text-color);margin-bottom:8px}.view-head{margin:4px 0 24px}.view-head h1{margin:0;font-size:34px;line-height:1.04;letter-spacing:-.04em}.view-head p{margin:7px 0 0;color:var(--secondary-text-color);max-width:760px}
 .hero{position:relative;overflow:hidden;border-radius:32px;border:1px solid var(--divider-color);background:linear-gradient(135deg,color-mix(in srgb,var(--cbbo) 11%,var(--card-background-color)),var(--card-background-color) 44%,color-mix(in srgb,var(--orange) 5%,var(--card-background-color)));min-height:340px;padding:36px;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(310px,.75fr);gap:32px;align-items:center}.hero:before{content:"";position:absolute;width:430px;height:430px;border-radius:50%;right:-180px;top:-220px;border:72px solid color-mix(in srgb,var(--cbbo) 8%,transparent)}.hero-copy,.hero-side{position:relative;z-index:1}.hero-kicker{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border-radius:999px;background:color-mix(in srgb,var(--cbbo) 10%,var(--card-background-color));border:1px solid color-mix(in srgb,var(--cbbo) 25%,var(--divider-color));color:var(--cbbo-deep);font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}.hero-copy h1{font-size:56px;line-height:.98;letter-spacing:-.055em;margin:18px 0 10px;max-width:780px}.hero-copy p{font-size:15px;color:var(--secondary-text-color);margin:0;max-width:680px}.waste-tokens{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}.waste-token{display:inline-flex;align-items:center;gap:12px;padding:14px 16px;border-radius:18px;border:1px solid color-mix(in srgb,var(--divider-color) 78%,transparent);background:color-mix(in srgb,var(--card-background-color) 94%,transparent);font-size:14px;font-weight:780;box-shadow:0 4px 14px color-mix(in srgb,#000 4%,transparent)}.waste-token ha-icon{--mdc-icon-size:42px}.waste-token.organic{color:var(--organic)}.waste-token.paper{color:var(--paper)}.waste-token.plastic{color:#ad8700}.waste-token.glass{color:var(--glass)}.waste-token.residual{color:var(--residual)}.waste-token.sanitary{color:var(--sanitary)}.waste-token.green{color:var(--green)}.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:25px}.action-btn{border:1px solid var(--divider-color);background:var(--card-background-color);color:var(--primary-text-color);border-radius:15px;padding:12px 15px;display:inline-flex;gap:8px;align-items:center;cursor:pointer;text-decoration:none;font-size:12px;font-weight:800}.action-btn.primary{background:var(--cbbo-deep);color:white;border-color:transparent}.action-btn ha-icon{--mdc-icon-size:19px}.hero-side{display:grid;gap:12px}.next-orbit{border-radius:28px;background:color-mix(in srgb,var(--primary-background-color) 45%,transparent);border:1px solid color-mix(in srgb,var(--divider-color) 85%,transparent);padding:25px;backdrop-filter:blur(8px)}.next-orbit span{display:block;font-size:9px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:var(--secondary-text-color)}.next-orbit strong{display:block;font-size:27px;line-height:1.05;margin-top:10px;letter-spacing:-.025em}.next-orbit small{display:block;margin-top:7px;color:var(--secondary-text-color);font-size:11px}.day-count{display:flex;align-items:end;gap:10px;margin-top:18px}.day-count b{font-size:58px;line-height:.8;color:var(--cbbo-deep);letter-spacing:-.06em}.day-count em{font-style:normal;color:var(--secondary-text-color);font-size:12px}.status-strip{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--divider-color);border-radius:25px;overflow:hidden;margin-top:14px;background:var(--card-background-color)}.status-item{padding:20px 22px;border-right:1px solid var(--divider-color)}.status-item:last-child{border-right:0}.status-item span{display:block;font-size:9px;font-weight:850;letter-spacing:.12em;text-transform:uppercase;color:var(--secondary-text-color)}.status-item strong{display:block;font-size:18px;margin-top:8px}.status-item small{display:block;color:var(--secondary-text-color);font-size:10px;margin-top:4px}.status-item.good strong{color:var(--cbbo-deep)}
@@ -300,7 +210,94 @@ main{width:min(1480px,100%);margin:auto;padding:22px 22px 0}.footer{width:min(14
 .center-footnote{margin:12px 2px 0;color:var(--secondary-text-color);font-size:11px;line-height:1.5}
 @media(max-width:760px){.center-hero{grid-template-columns:1fr}.center-status,.center-info{padding:19px;border-radius:21px}.center-kpis{grid-template-columns:1fr}.hours-row{grid-template-columns:1fr;gap:8px;padding:13px 16px}.lang-switch{margin-left:auto}}
 `;
-    this.shadowRoot.innerHTML=`<style>${sourceStyle}</style><div class="app"><header class="topbar"><div class="topbar-main"><button class="menu-btn" id="ha-menu-toggle" aria-label="Home Assistant menu" title="Home Assistant menu"><ha-icon icon="mdi:menu"></ha-icon></button><div class="app-identity"><div class="app-icon"><img src="/cbbo_waste_collection/icon.png" alt=""></div><div class="brand"><div class="brand-line"><div class="brand-title">CBBO Waste Collection</div><span class="version-badge">2.4.1</span></div><div class="brand-subtitle" id="brand-subtitle">Waste Center</div></div></div><div class="lang-switch" title="${this.t('language')}"><button class="lang-btn ${lang==='it'?'active':''}" data-lang="it">IT</button><button class="lang-btn ${lang==='en'?'active':''}" data-lang="en">EN</button></div></div><div class="nav-scroller"><nav class="nav tabs">${this.tab('home','mdi:view-dashboard',this.t('overview'))}${this.tab('calendar','mdi:calendar-month',this.t('calendar'))}${this.tab('place','mdi:map-marker-outline',this.t('municipality'))}${this.tab('center','mdi:recycle-variant',this.t('center'))}${this.tab('diag','mdi:tools',this.t('diagnostics'))}<button class="nav-btn support-nav" id="support-nav" type="button"><ha-icon icon="mdi:coffee-outline"></ha-icon><span>${this.t('support')}</span></button></nav></div></header><main id="view-content"></main><div class="footer">CBBO Waste Collection · v2.4.1 · Riccardo Cosi · Fabio Vittori</div></div>`;
+
+class CBBOWasteCollectionPanel extends HTMLElement {
+  constructor(){
+    super();
+    this.attachShadow({mode:'open'});
+    this._hass=null;
+    this._data=null;
+    this._loading=false;
+    this._lastLoad=0;
+    this._view=localStorage.getItem('cbbo-panel-view')||'home';
+    this._selectedEntryId=localStorage.getItem('cbbo-panel-entry')||null;
+    this._shellMounted=false;
+    this._refreshTimer=null;
+    this._locationPickerOpen=false;
+    const storedLang=localStorage.getItem('cbbo-panel-lang');
+    this._lang=storedLang||null;
+  }
+  lang(){
+    if(this._lang)return this._lang;
+    const haLang=(this._hass?.language||this._hass?.locale?.language||'it').toLowerCase();
+    return haLang.startsWith('en')?'en':'it';
+  }
+  setLanguage(lang){
+    this._lang=lang==='en'?'en':'it';
+    localStorage.setItem('cbbo-panel-lang',this._lang);
+    this.renderShell();
+  }
+  t(key,vars={}){
+    let value=I18N[this.lang()]?.[key]??I18N.it[key]??key;
+    Object.entries(vars).forEach(([k,v])=>value=value.replaceAll(`{${k}}`,String(v)));
+    return value;
+  }
+  locale(){return this.lang()==='en'?'en-GB':'it-IT'}
+  wasteLabel(type,fallback=''){
+    const meta=WASTE_META[type];
+    return meta?.[this.lang()]||fallback||type;
+  }
+  dayLabels(){return [this.t('mon'),this.t('tue'),this.t('wed'),this.t('thu'),this.t('fri'),this.t('sat'),this.t('sun')]}
+  set hass(v){
+    this._hass=v;
+    if(!this._shellMounted) this.renderShell();
+    if(!this._data || Date.now()-this._lastLoad>30000){
+      clearTimeout(this._refreshTimer);
+      this._refreshTimer=setTimeout(()=>this.loadData(),30);
+    }else if(!(this._view==='place' && this._locationPickerOpen)){
+      this.renderMain();
+    }
+  }
+  get hass(){return this._hass}
+  set narrow(v){this._narrow=v}
+  set route(v){this._route=v}
+  set panel(v){this._panel=v}
+  connectedCallback(){ if(!this._shellMounted) this.renderShell(); if(this._hass) this.loadData(); }
+
+  async loadData(force=false){
+    if(!this._hass||this._loading) return;
+    if(!force&&this._data&&Date.now()-this._lastLoad<30000){if(!(this._view==='place'&&this._locationPickerOpen))this.renderMain();return}
+    this._loading=true; this.renderMain();
+    try{
+      this._data=await this._hass.callWS({type:'cbbo_waste_collection/panel_data'});
+      this._lastLoad=Date.now();
+      const entries=this._data?.entries||[];
+      if(!entries.some(x=>x.entry_id===this._selectedEntryId)) this._selectedEntryId=entries[0]?.entry_id||null;
+    }catch(err){ console.error('CBBO panel',err); this._data={entries:[],error:true}; }
+    finally{this._loading=false;this.renderMain();}
+  }
+  async refresh(){
+    if(!this._hass||this._loading)return;
+    this._loading=true;this.renderMain();
+    try{
+      await this._hass.callService('cbbo_waste_collection','refresh',{});
+      await new Promise(r=>setTimeout(r,900));
+      this._lastLoad=0;await this.loadData(true);
+    }catch(e){console.error(e);this._loading=false;this.renderMain()}
+  }
+  entry(){const e=this._data?.entries||[];return e.find(x=>x.entry_id===this._selectedEntryId)||e[0]||null}
+  entryName(e=this.entry()){if(!e)return 'CBBO';return e.zone_name?`${e.municipality_name} · ${e.zone_name}`:e.municipality_name}
+  fmtDate(v,weekday=true){if(!v)return '—';const d=new Date(`${v}T12:00:00`);return new Intl.DateTimeFormat(this.locale(),{weekday:weekday?'long':undefined,day:'numeric',month:'long'}).format(d)}
+  fmtStamp(v){if(!v)return '—';const d=new Date(v);return Number.isNaN(d.getTime())?v:new Intl.DateTimeFormat(this.locale(),{dateStyle:'short',timeStyle:'short'}).format(d)}
+  text(c){return c?.waste_types?.length?c.waste_types.map((t,i)=>this.wasteLabel(t,c?.labels?.[i]||t)).join(' + '):this.t('noCollection')}
+  wasteItems(c){return (c?.waste_types||[]).map((t,i)=>{const m=WASTE_META[t]||{icon:'mdi:recycle',cls:'other'};return `<span class="waste-token ${m.cls}"><ha-icon icon="${m.icon}"></ha-icon><b>${this.wasteLabel(t,c?.labels?.[i]||t)}</b></span>`}).join('')}
+  dotItems(c){return (c?.waste_types||[]).map(t=>{const m=WASTE_META[t]||{icon:'mdi:recycle',cls:'other'};return `<span class="waste-dot ${m.cls}"><ha-icon icon="${m.icon}"></ha-icon></span>`}).join('')||'<span class="waste-dot empty"><ha-icon icon="mdi:minus"></ha-icon></span>'}
+  tab(view,icon,label){return `<button class="nav-btn tab ${this._view===view?'active':''}" data-view="${view}" type="button"><ha-icon icon="${icon}"></ha-icon><span>${label}</span></button>`}
+  sourceLabel(e){return e?.source_status==='fallback'?this.t('localCalendar'):e?.source_status==='cache'?this.t('cachedData'):this.t('onlineData')}
+
+  renderShell(){
+    const lang=this.lang();
+    this.shadowRoot.innerHTML=`<style>${PANEL_STYLES}</style><div class="app"><header class="topbar"><div class="topbar-main"><button class="menu-btn" id="ha-menu-toggle" aria-label="Home Assistant menu" title="Home Assistant menu"><ha-icon icon="mdi:menu"></ha-icon></button><div class="app-identity"><div class="app-icon"><img src="/cbbo_waste_collection/icon.png" alt=""></div><div class="brand"><div class="brand-line"><div class="brand-title">CBBO Waste Collection</div><span class="version-badge">3.0.0</span></div><div class="brand-subtitle" id="brand-subtitle">Waste Center</div></div></div><div class="lang-switch" title="${this.t('language')}"><button class="lang-btn ${lang==='it'?'active':''}" data-lang="it">IT</button><button class="lang-btn ${lang==='en'?'active':''}" data-lang="en">EN</button></div></div><div class="nav-scroller"><nav class="nav tabs">${this.tab('home','mdi:view-dashboard',this.t('overview'))}${this.tab('calendar','mdi:calendar-month',this.t('calendar'))}${this.tab('place','mdi:map-marker-outline',this.t('municipality'))}${this.tab('center','mdi:recycle-variant',this.t('center'))}${this.tab('diag','mdi:tools',this.t('diagnostics'))}<button class="nav-btn support-nav" id="support-nav" type="button"><ha-icon icon="mdi:coffee-outline"></ha-icon><span>${this.t('support')}</span></button></nav></div></header><main id="view-content"></main><div class="footer">CBBO Waste Collection · v3.0.0 · Riccardo Cosi · Fabio Vittori</div></div>`;
     this._shellMounted=true;this.bindShell();this.renderMain();
   }
   bindShell(){
@@ -415,4 +412,4 @@ main{width:min(1480px,100%);margin:auto;padding:22px 22px 0}.footer{width:min(14
 
   }
 }
-if(!customElements.get('cbbo-waste-collection-panel-v241')) customElements.define('cbbo-waste-collection-panel-v241',CBBOWasteCollectionPanel);
+if(!customElements.get('cbbo-waste-collection-panel-v300')) customElements.define('cbbo-waste-collection-panel-v300',CBBOWasteCollectionPanel);

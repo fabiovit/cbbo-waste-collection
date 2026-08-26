@@ -2,33 +2,50 @@
 from __future__ import annotations
 
 from datetime import timedelta
+from typing import Final
 
-DOMAIN = "cbbo_waste_collection"
-PLATFORMS = ["sensor", "binary_sensor", "calendar"]
+DOMAIN: Final = "cbbo_waste_collection"
+PLATFORMS: Final = ["sensor", "binary_sensor", "calendar"]
 
-CONF_MUNICIPALITY = "municipality"
-CONF_ZONE = "zone"
-CONF_INCLUDE_GREEN = "include_green"
-CONF_INCLUDE_SANITARY = "include_sanitary"
+CONF_MUNICIPALITY: Final = "municipality"
+CONF_ZONE: Final = "zone"
+CONF_INCLUDE_GREEN: Final = "include_green"
+CONF_INCLUDE_SANITARY: Final = "include_sanitary"
 
-ZONE_DEFAULT = "default"
-ZONE_NORTH = "north"
-ZONE_SOUTH = "south"
+ZONE_DEFAULT: Final = "default"
+ZONE_NORTH: Final = "north"
+ZONE_SOUTH: Final = "south"
 
-MUNICIPALITIES: dict[str, str] = {
-    "acquafredda": "Acquafredda", "barbariga": "Barbariga", "calvisano": "Calvisano",
-    "capriano-del-colle": "Capriano del Colle", "carpenedolo": "Carpenedolo",
-    "castenedolo": "Castenedolo", "flero": "Flero", "ghedi": "Ghedi",
-    "isorella": "Isorella", "mazzano": "Mazzano", "montichiari": "Montichiari",
-    "montirone": "Montirone", "nuvolento": "Nuvolento", "nuvolera": "Nuvolera",
-    "poncarale": "Poncarale", "remedello": "Remedello",
-    "san-zeno-naviglio": "San Zeno Naviglio", "visano": "Visano",
+MUNICIPALITIES: Final[dict[str, str]] = {
+    "acquafredda": "Acquafredda",
+    "barbariga": "Barbariga",
+    "calvisano": "Calvisano",
+    "capriano-del-colle": "Capriano del Colle",
+    "carpenedolo": "Carpenedolo",
+    "castenedolo": "Castenedolo",
+    "flero": "Flero",
+    "ghedi": "Ghedi",
+    "isorella": "Isorella",
+    "mazzano": "Mazzano",
+    "montichiari": "Montichiari",
+    "montirone": "Montirone",
+    "nuvolento": "Nuvolento",
+    "nuvolera": "Nuvolera",
+    "poncarale": "Poncarale",
+    "remedello": "Remedello",
+    "san-zeno-naviglio": "San Zeno Naviglio",
+    "visano": "Visano",
 }
-MUNICIPALITY_ZONES: dict[str, dict[str, str]] = {
-    "mazzano": {ZONE_NORTH: "Zona Nord", ZONE_SOUTH: "Zona Sud"},
+
+MUNICIPALITY_ZONES: Final[dict[str, dict[str, str]]] = {
+    "mazzano": {
+        ZONE_NORTH: "Zona Nord",
+        ZONE_SOUTH: "Zona Sud",
+    }
 }
-BASE_URL = "https://www.cbbo.it"
-CACHE_VERSION = 2
-UPDATE_INTERVAL = timedelta(hours=6)
-SERVICE_REFRESH = "refresh"
-SERVICE_CLEAR_CACHE = "clear_cache"
+
+BASE_URL: Final = "https://www.cbbo.it"
+CACHE_VERSION: Final = 2
+UPDATE_INTERVAL: Final = timedelta(hours=6)
+SERVICE_REFRESH: Final = "refresh"
+SERVICE_CLEAR_CACHE: Final = "clear_cache"

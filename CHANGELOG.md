@@ -1,5 +1,19 @@
 # Changelog
 
+## 3.0.0
+
+- Refactoring completo del codice Python senza modifiche funzionali agli entity ID.
+- Eliminati import wildcard, statement compressi e duplicazioni nelle piattaforme sensori.
+- Coordinatore suddiviso in metodi dedicati per download, cache, fallback e filtro opzioni.
+- Costanti e modelli resi più leggibili e tipizzati.
+- Dati dei Centri di raccolta riformattati in una struttura manutenibile.
+- Frontend ripulito rimuovendo il vecchio doppio caricamento degli stili.
+- Suite test ricostruita con nomi permanenti e senza test legati alla versione.
+- Workflow Validate e Release consistency semplificati.
+- Rimosso AUDIT_2026.md dal pacchetto pubblico.
+- Mantenuti Waste Center, IT/EN, Centri di raccolta, cache, fallback e tutti i Comuni supportati.
+- Nessuna riconfigurazione richiesta agli utenti esistenti.
+
 ## 2.4.1
 
 - Corretto il workflow GitHub Validate: ora esegue esclusivamente `tests/current`.
