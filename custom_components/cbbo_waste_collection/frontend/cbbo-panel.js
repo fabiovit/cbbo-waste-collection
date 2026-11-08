@@ -1,4 +1,4 @@
-const CBBO_PANEL_VERSION = "3.0.0";
+const CBBO_PANEL_VERSION = "3.0.1";
 
 const WASTE_META = {
   organic:   { icon:"mdi:food-apple-outline", it:"Frazione organica", en:"Organic waste", cls:"organic" },
@@ -412,4 +412,4 @@ class CBBOWasteCollectionPanel extends HTMLElement {
 
   }
 }
-if(!customElements.get('cbbo-waste-collection-panel-v300')) customElements.define('cbbo-waste-collection-panel-v300',CBBOWasteCollectionPanel);
+if(!customElements.get('cbbo-waste-collection-panel-v301')) customElements.define('cbbo-waste-collection-panel-v301',CBBOWasteCollectionPanel);
