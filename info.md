@@ -1,6 +1,9 @@
-# ♻️ CBBO Waste Collection v3.0.0
+# ♻️ CBBO Waste Collection v3.0.1
 
 ## 🇮🇹 Italiano
+
+**Novità 3.0.1:** compatibilità e istruzioni aggiornate per il **Marketplace integrato in Home Assistant 2026.11+**. Installazione da **Impostazioni → Marketplace → Add from link**, usando `fabiovit/cbbo-waste-collection` (tipo **Integration**). Gli utenti HACS esistenti vengono migrati automaticamente. Nessuna modifica a sensori, calendari o configurazioni.
+
 
 La v3.0.0 include:
 
@@ -18,6 +21,9 @@ La v3.0.0 include:
 Gli orari standard sono stati verificati sulle pagine ufficiali CBBO il 19/08/2026.
 
 ## 🇬🇧 English
+
+**What's new in 3.0.1:** updated instructions for the built-in **Home Assistant 2026.11+ Marketplace**. Install via **Settings → Marketplace → Add from link**, entering `fabiovit/cbbo-waste-collection` (type **Integration**). Existing HACS installations migrate automatically. No changes to sensors, calendars or configuration.
+
 
 v3.0.0 includes:
 
