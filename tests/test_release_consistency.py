@@ -10,8 +10,8 @@ def test_release_consistency():
     panel_py = (INTEGRATION / "panel.py").read_text()
     panel_js = (INTEGRATION / "frontend" / "cbbo-panel.js").read_text()
 
-    assert manifest["version"] == "3.0.0"
-    assert '"version": "3.0.0"' in panel_py
-    assert "?v=3.0.0" in panel_py
-    assert 'CBBO_PANEL_VERSION = "3.0.0"' in panel_js
-    assert "cbbo-waste-collection-panel-v300" in panel_js
+    assert manifest["version"] == "3.0.1"
+    assert '"version": "3.0.1"' in panel_py
+    assert "?v=3.0.1" in panel_py
+    assert 'CBBO_PANEL_VERSION = "3.0.1"' in panel_js
+    assert "cbbo-waste-collection-panel-v301" in panel_js
