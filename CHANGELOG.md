@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.0.1
+
+- Documentazione italiana e inglese aggiornata per il Marketplace integrato in Home Assistant 2026.11+.
+- Aggiunto pulsante diretto "Open in Home Assistant Marketplace" al README.
+- Spiegati aggiunta da link, collegamento GitHub, aggiornamenti e migrazione automatica da HACS.
+- Mantenuta la compatibilità con HACS su Home Assistant 2026.10 e precedenti.
+- Versione e cache-busting del pannello allineati a 3.0.1.
+- Nessuna modifica a calendari, entity ID, configurazioni e funzionalità di raccolta.
+
+
 ## 3.0.0
 
 - Refactoring completo del codice Python senza modifiche funzionali agli entity ID.
