@@ -1,7 +1,7 @@
 # ♻️ CBBO Waste Collection
 
-[![Release](https://img.shields.io/badge/release-v3.0.0-blue)](https://github.com/fabiovit/cbbo-waste-collection/releases)
-[![HACS](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/)
+[![Release](https://img.shields.io/badge/release-v3.0.1-blue)](https://github.com/fabiovit/cbbo-waste-collection/releases)
+[![Open in Home Assistant Marketplace](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=fabiovit&repository=cbbo-waste-collection&category=integration)
 [![Validate](https://img.shields.io/github/actions/workflow/status/fabiovit/cbbo-waste-collection/validate.yml?branch=main&label=Validate)](https://github.com/fabiovit/cbbo-waste-collection/actions/workflows/validate.yml)
 [![Hassfest](https://img.shields.io/github/actions/workflow/status/fabiovit/cbbo-waste-collection/hassfest.yml?branch=main&label=Hassfest)](https://github.com/fabiovit/cbbo-waste-collection/actions/workflows/hassfest.yml)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -14,6 +14,13 @@ Integrazione custom per Home Assistant dedicata ai calendari della raccolta diff
 
 ## 🇮🇹 Italiano
 
+
+### 🛍️ Novità v3.0.1 — Home Assistant Marketplace
+
+- Installazione e aggiornamenti documentati per **Home Assistant 2026.11+ → Marketplace**.
+- Collegamento diretto **Apri nel Marketplace**.
+- Supporto alle installazioni precedenti: Home Assistant migra automaticamente le integrazioni installate tramite HACS.
+- Nessuna modifica ai calendari, agli entity ID o alle configurazioni esistenti.
 
 ### 🧹 Novità v3.0.0
 
@@ -82,20 +89,25 @@ In inglese:
 #### Comune
 ![CBBO Waste Collection - Comune](docs/screenshots/municipality.png)
 
-### 📦 Installazione tramite HACS
+### 📦 Installazione — Home Assistant Marketplace (2026.11+)
 
-1. Apri **HACS**.
-2. Vai in **Integrazioni**.
-3. Aggiungi questo repository come **Custom repository**.
-4. Categoria: **Integration**.
-5. Installa **CBBO Waste Collection**.
-6. Riavvia Home Assistant.
-7. Vai in **Impostazioni → Dispositivi e servizi → Aggiungi integrazione**.
-8. Cerca **CBBO Waste Collection**.
+[![Open in Home Assistant Marketplace](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=fabiovit&repository=cbbo-waste-collection&category=integration)
 
-Repository:
+1. Apri **Impostazioni → Marketplace** e accetta l'avviso iniziale, se richiesto.
+2. Se il progetto non è già nel catalogo, scegli **Add from link** in alto a destra.
+3. Collega il tuo account GitHub se richiesto: è necessario per i repository personalizzati.
+4. Inserisci `https://github.com/fabiovit/cbbo-waste-collection` (oppure `fabiovit/cbbo-waste-collection`).
+5. Se il tipo non viene riconosciuto, seleziona **Integration**; quindi scegli **Add**.
+6. Apri **CBBO Waste Collection** nel Marketplace e seleziona **Install**.
+7. Completa la configurazione in **Impostazioni → Dispositivi e servizi → Aggiungi integrazione**. Se Home Assistant richiede il riavvio, eseguilo.
 
-`https://github.com/fabiovit/cbbo-waste-collection`
+**Aggiornamenti:** disponibili in **Impostazioni → Aggiornamenti**. Per i repository aggiunti da link è necessaria la connessione GitHub per verificare le nuove versioni.
+
+**Hai già installato CBBO tramite HACS?** Passando a Home Assistant 2026.11 o successivo, il Marketplace migra automaticamente l'installazione: **non disinstallare e non riconfigurare CBBO**.
+
+**Home Assistant 2026.10 o precedente:** continua a utilizzare HACS e aggiungi il repository come integrazione personalizzata.
+
+Documentazione ufficiale: https://www.home-assistant.io/integrations/marketplace
 
 ### ☕ Supporta il progetto
 
@@ -116,6 +128,13 @@ Custom Home Assistant integration for CBBO waste collection calendars and the **
 
 > CBBO® and its logo belong to their respective owners. This is an independent Home Assistant integration and is not affiliated with or officially endorsed by CBBO.
 
+
+### 🛍️ What's new in v3.0.1 — Home Assistant Marketplace
+
+- Installation and updates documented for **Home Assistant 2026.11+ → Marketplace**.
+- Direct **Open in Marketplace** link.
+- Existing HACS installations migrate automatically when Home Assistant upgrades.
+- No changes to calendars, entity IDs or existing configuration.
 
 ### 🧹 What’s new in v3.0.0
 
@@ -184,20 +203,25 @@ Italian:
 #### Municipality
 ![CBBO Waste Collection - Municipality](docs/screenshots/municipality.png)
 
-### 📦 HACS installation
+### 📦 Installation — Home Assistant Marketplace (2026.11+)
 
-1. Open **HACS**.
-2. Go to **Integrations**.
-3. Add this repository as a **Custom repository**.
-4. Category: **Integration**.
-5. Install **CBBO Waste Collection**.
-6. Restart Home Assistant.
-7. Go to **Settings → Devices & services → Add integration**.
-8. Search for **CBBO Waste Collection**.
+[![Open in Home Assistant Marketplace](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=fabiovit&repository=cbbo-waste-collection&category=integration)
 
-Repository:
+1. Open **Settings → Marketplace** and accept the initial warning if prompted.
+2. If this project is not listed in the catalog, choose **Add from link** in the top-right corner.
+3. Connect your GitHub account if prompted (required for custom repositories).
+4. Enter `https://github.com/fabiovit/cbbo-waste-collection` (or `fabiovit/cbbo-waste-collection`).
+5. If the type is not detected, select **Integration**, then **Add**.
+6. Open **CBBO Waste Collection** in the Marketplace and select **Install**.
+7. Complete setup under **Settings → Devices & services → Add integration**. Restart Home Assistant if requested.
 
-`https://github.com/fabiovit/cbbo-waste-collection`
+**Updates:** available under **Settings → Updates**. A GitHub connection is required to check for updates to repositories added from a link.
+
+**Already installed via HACS?** Home Assistant 2026.11+ migrates existing HACS installations automatically: **do not uninstall or reconfigure CBBO**.
+
+**Home Assistant 2026.10 or earlier:** continue using HACS and add the repository as a custom integration.
+
+Official documentation: https://www.home-assistant.io/integrations/marketplace
 
 ### ☕ Support the project
 
